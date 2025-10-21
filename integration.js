@@ -1,10 +1,10 @@
 // GitHub Integration for Mountain Life Uttarakhand
 
 const GITHUB_CONFIG = {
-    username: 'your-github-username',
+    username: 'DeepakSingh86',
     repo: 'mountain-life-uttarakhand',
     branch: 'main',
-    token: 'your-github-token' // For write operations
+    token: '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' // For write operations
 };
 
 // Data structure for the website
@@ -555,4 +555,5 @@ window.loadAllDataFromGitHub = loadAllDataFromGitHub;
 window.saveToGitHub = saveToGitHub;
 window.uploadImageToGitHub = uploadImageToGitHub;
 window.createFolderInGitHub = createFolderInGitHub;
+
 window.showNotification = showNotification;
