@@ -3,6 +3,7 @@
 // Global variables
 let currentEditingArticle = null;
 let currentEditingFile = null;
+let websiteData = websiteData || { articles: [], pages: [], settings: {} };
 
 // Initialize admin
 document.addEventListener('DOMContentLoaded', function() {
@@ -129,8 +130,8 @@ function updateAdminUI() {
     document.getElementById('articlesCount').textContent = websiteData.articles.length;
     document.getElementById('imagesCount').textContent = websiteData.images.length;
     document.getElementById('eventsCount').textContent = websiteData.events.length;
-    document.getElementById('locationsCount').textContent = websiteData.locations.length;
-    
+   // document.getElementById('locationsCount').textContent = websiteData.locations.length;
+    document.getElementById('locationsCount').textContent = websiteData.articles.push(newArticle);
     // Update file explorer
     updateFileExplorer();
     
@@ -540,4 +541,5 @@ window.closeFileEditor = closeFileEditor;
 window.saveAllData = saveAllData;
 window.refreshData = refreshData;
 window.saveSettings = saveSettings;
+
 window.openImageModal = openImageModal;
