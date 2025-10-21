@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Mountain Life in Uttarakhand</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="container">
+            <div class="admin-nav">
+                <h1><i class="fas fa-cogs"></i> Admin Panel</h1>
+                <div class="admin-nav-links">
+                    <a href="index.html"><i class="fas fa-home"></i> View Site</a>
+                    <a href="#" id="saveAllData"><i class="fas fa-save"></i> Save All</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Statistics -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="articlesCount">0</div>
+                <div class="stat-label">Articles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="imagesCount">0</div>
+                <div class="stat-label">Images</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="eventsCount">0</div>
+                <div class="stat-label">Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="locationsCount">0</div>
+                <div class="stat-label">Locations</div>
+            </div>
+        </div>
+
+        <div class="admin-main">
+            <!-- Main Content -->
+            <div class="admin-content">
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="content">Content Management</button>
+                    <button class="admin-tab" data-tab="files">File Management</button>
+                    <button class="admin-tab" data-tab="settings">Settings</button>
+                    <button class="admin-tab" data-tab="github">GitHub Config</button>
+                </div>
+
+                <!-- Content Management Tab -->
+                <div class="tab-content active" id="content-tab">
+                    <h2>Content Management</h2>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="addArticleBtn"><i class="fas fa-plus"></i> Add New Article</button>
+                        <button class="btn btn-secondary" id="refreshData"><i class="fas fa-sync"></i> Refresh Data</button>
+                    </div>
+
+                    <h3>Recent Articles</h3>
+                    <div class="admin-list" id="recentArticles">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+
+                    <!-- Article Form -->
+                    <div id="articleForm" style="display: none; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                        <h3 id="articleFormTitle">Add New Article</h3>
+                        <form id="articleFormElement">
+                            <input type="hidden" id="articleId" name="id">
+                            
+                            <div class="form-group">
+                                <label for="articleTitle">Title *</label>
+                                <input type="text" id="articleTitle" name="title" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleExcerpt">Excerpt *</label>
+                                <textarea id="articleExcerpt" name="excerpt" class="form-control" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleContent">Content</label>
+                                <textarea id="articleContent" name="content" class="form-control" rows="6"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleImage">Image URL</label>
+                                <input type="url" id="articleImage" name="image" class="form-control" placeholder="https://...">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleDate">Publish Date</label>
+                                <input type="date" id="articleDate" name="date" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleCategory">Category</label>
+                                <select id="articleCategory" name="category" class="form-control">
+                                    <option value="Featured">Featured</option>
+                                    <option value="Culture">Culture</option>
+                                    <option value="Adventure">Adventure</option>
+                                    <option value="Nature">Nature</option>
+                                    <option value="Spirituality">Spirituality</option>
+                                    <option value="News">News</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleAuthor">Author</label>
+                                <input type="text" id="articleAuthor" name="author" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="articleTags">Tags (comma separated)</label>
+                                <input type="text" id="articleTags" name="tags" class="form-control" placeholder="himalayas, culture, adventure">
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Save Article</button>
+                                <button type="button" class="btn btn-secondary" id="cancelArticleBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- File Management Tab -->
+                <div class="tab-content" id="files-tab">
+                    <h2>File Management</h2>
+                    
+                    <div class="form-group">
+                        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        <div id="uploadStatus" class="status-info" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <!-- File Explorer -->
+                    <div class="file-explorer" id="fileExplorer">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+
+                    <!-- File Editor -->
+                    <div id="fileEditor" style="display: none;">
+                        <div class="file-content">
+                            <h4>Editing: <span id="fileName"></span></h4>
+                            <textarea id="fileContent" class="form-control"></textarea>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <button class="btn btn-primary" onclick="saveFile()">Save Changes</button>
+                                <button class="btn btn-secondary" onclick="closeFileEditor()">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="tab-content" id="settings-tab">
+                    <h2>Website Settings</h2>
+                    
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label for="siteName">Site Name</label>
+                            <input type="text" id="siteName" name="siteName" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="siteDescription">Site Description</label>
+                            <textarea id="siteDescription" name="siteDescription" class="form-control"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactEmail">Contact Email</label>
+                            <input type="email" id="contactEmail" name="contactEmail" class="form-control">
+                        </div>
+                        
+                        <h3>Social Media Links</h3>
+                        
+                        <div class="form-group">
+                            <label for="facebookUrl">Facebook</label>
+                            <input type="url" id="facebookUrl" name="facebookUrl" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="twitterUrl">Twitter</label>
+                            <input type="url" id="twitterUrl" name="twitterUrl" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="instagramUrl">Instagram</label>
+                            <input type="url" id="instagramUrl" name="instagramUrl" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="youtubeUrl">YouTube</label>
+                            <input type="url" id="youtubeUrl" name="youtubeUrl" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- GitHub Config Tab -->
+                <div class="tab-content" id="github-tab">
+                    <h2>GitHub Configuration</h2>
+                    <p>Configure your GitHub repository for automated content management.</p>
+                    
+                    <form id="githubConfigForm">
+                        <div class="form-group">
+                            <label for="githubUsername">GitHub Username</label>
+                            <input type="text" id="githubUsername" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="githubRepo">Repository Name</label>
+                            <input type="text" id="githubRepo" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="githubToken">GitHub Personal Access Token</label>
+                            <input type="password" id="githubToken" class="form-control" 
+                                   placeholder="Required for write operations">
+                            <small>Create a token with repo permissions at: https://github.com/settings/tokens</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Save Configuration</button>
+                        </div>
+                    </form>
+                    
+                    <div class="admin-widget" style="margin-top: 30px;">
+                        <h3>Repository Structure</h3>
+                        <p>Your GitHub repository should have this structure:</p>
+                        <pre>
+mountain-life-uttarakhand/
+├── data/
+│   ├── articles.json
+│   ├── events.json
+│   ├── locations.json
+│   └── settings.json
+└── images/
+    └── (uploaded images)
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="admin-sidebar">
+                <div class="admin-widget">
+                    <h3>GitHub Status</h3>
+                    <div class="status-item">
+                        <strong>Repository:</strong> <span id="repoStatus" class="status-connected">Connected</span>
+                    </div>
+                    <div class="status-item">
+                        <strong>Last Sync:</strong> <span id="lastSync">Just now</span>
+                    </div>
+                </div>
+
+                <div class="admin-widget">
+                    <h3>Quick Actions</h3>
+                    <div class="external-links">
+                        <a href="#" id="openGitHub" target="_blank" class="external-link">
+                            <i class="fab fa-github"></i> Open GitHub
+                        </a>
+                        <a href="#" id="viewLiveSite" target="_blank" class="external-link">
+                            <i class="fas fa-external-link-alt"></i> View Live Site
+                        </a>
+                        <button class="btn btn-primary" onclick="saveAllData()" style="margin-top: 10px; width: 100%;">
+                            <i class="fas fa-save"></i> Save All to GitHub
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-widget">
+                    <h3>Recent Activity</h3>
+                    <div class="admin-list">
+                        <div class="admin-list-item">
+                            <div>
+                                <div>Data loaded from GitHub</div>
+                                <small>Just now</small>
+                            </div>
+                        </div>
+                        <!-- More activity items will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="" style="max-width: 100%; border-radius: 8px;">
+                <h3 id="modalTitle" style="margin-top: 15px;"></h3>
+            </div>
+        </div>
+    </div>
+
+    <script src="github-integration.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
