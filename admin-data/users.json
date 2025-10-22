@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "lastUpdated": "2024-12-19T10:30:00Z",
+    "totalUsers": 2,
+    "version": "1.0"
+  },
+  "admins": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@travelpahad.com",
+      "passwordHash": "hashed_password_here",
+      "role": "superadmin",
+      "isActive": true,
+      "lastLogin": "2024-12-19T10:25:00Z",
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "username": "editor",
+      "email": "editor@travelpahad.com",
+      "passwordHash": "hashed_password_here",
+      "role": "editor",
+      "isActive": true,
+      "lastLogin": "2024-12-18T15:30:00Z",
+      "createdAt": "2024-01-15T08:00:00Z"
+    }
+  ],
+  "roles": {
+    "superadmin": ["read", "write", "delete", "user_management"],
+    "editor": ["read", "write"],
+    "viewer": ["read"]
+  }
+}
