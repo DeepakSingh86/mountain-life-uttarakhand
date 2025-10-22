@@ -251,6 +251,149 @@ function updateGitHubStatus(message, type) {
     statusElement.className = type === 'success' ? 'success-message' : 
                              type === 'error' ? 'error-message' : '';
 }
+// Enhanced admin JSON management
+const ADMIN_JSON_FILES = {
+    destinations: 'admin-data/destinations.json',
+    content: 'admin-data/website-content.json',
+    users: 'admin-data/users.json',
+    settings: 'admin-data/settings.json'
+};
+
+// Load all JSON files in admin
+async function loadAllJSONData() {
+    await loadDestinations();
+    await loadWebsiteContentForAdmin();
+    await loadSettings();
+}
+
+// Load website content for admin editing
+async function loadWebsiteContentForAdmin() {
+    try {
+        const response = await fetch(
+            `${GITHUB_API.base}/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${ADMIN_JSON_FILES.content}`,
+            {
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            const content = JSON.parse(atob(data.content));
+            renderWebsiteContentForm(content);
+        }
+    } catch (error) {
+        console.error('Error loading website content:', error);
+    }
+}
+
+// Render website content form in admin
+function renderWebsiteContentForm(content) {
+    const formSection = document.querySelector('.form-section');
+    if (formSection) {
+        formSection.insertAdjacentHTML('afterend', `
+            <section class="form-section">
+                <h2>Website Content Management</h2>
+                <form id="websiteContentForm" class="content-form">
+                    <h3>Hero Section</h3>
+                    <input type="text" id="heroTitle" placeholder="Hero Title" value="${content.hero?.title || ''}" class="form-input">
+                    <input type="text" id="heroSubtitle" placeholder="Hero Subtitle" value="${content.hero?.subtitle || ''}" class="form-input">
+                    
+                    <h3>About Section</h3>
+                    <input type="text" id="aboutTitle" placeholder="About Title" value="${content.sections?.about?.title || ''}" class="form-input">
+                    <textarea id="aboutContent" placeholder="About Content" class="form-input">${content.sections?.about?.content || ''}</textarea>
+                    
+                    <h3>Contact Information</h3>
+                    <input type="email" id="contactEmail" placeholder="Contact Email" value="${content.contact?.email || ''}" class="form-input">
+                    <input type="tel" id="contactPhone" placeholder="Contact Phone" value="${content.contact?.phone || ''}" class="form-input">
+                    
+                    <button type="button" onclick="saveWebsiteContent()" class="btn-primary">Save Website Content</button>
+                </form>
+            </section>
+        `);
+    }
+}
+
+// Save website content
+async function saveWebsiteContent() {
+    const content = {
+        metadata: {
+            lastUpdated: new Date().toISOString(),
+            version: "1.1",
+            siteName: "TravelPahad.com"
+        },
+        hero: {
+            title: document.getElementById('heroTitle').value,
+            subtitle: document.getElementById('heroSubtitle').value,
+            ctaButton: "Explore Now",
+            backgroundImage: "https://images.unsplash.com/photo-1565498255685-2ef89da3d2d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+        },
+        sections: {
+            about: {
+                title: document.getElementById('aboutTitle').value,
+                content: document.getElementById('aboutContent').value
+            }
+        },
+        contact: {
+            email: document.getElementById('contactEmail').value,
+            phone: document.getElementById('contactPhone').value,
+            address: "Dehradun, Uttarakhand, India"
+        }
+    };
+
+    await saveToGitHub(ADMIN_JSON_FILES.content, content, 'Update website content');
+}
+
+// Generic function to save any JSON file to GitHub
+async function saveToGitHub(filePath, data, commitMessage) {
+    try {
+        const contentBase64 = btoa(JSON.stringify(data, null, 2));
+        
+        const response = await fetch(
+            `${GITHUB_API.base}/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${filePath}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: commitMessage,
+                    content: contentBase64,
+                    sha: currentFileSHA, // This would need to be managed per file
+                    branch: GITHUB_CONFIG.branch
+                })
+            }
+        );
+
+        if (response.ok) {
+            updateGitHubStatus(`${filePath} saved successfully`, 'success');
+            return true;
+        } else {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+    } catch (error) {
+        console.error(`Error saving ${filePath}:`, error);
+        updateGitHubStatus(`Failed to save ${filePath}`, 'error');
+        return false;
+    }
+}
+
+// Create backup
+async function createBackup() {
+    const timestamp = new Date().toISOString().split('T')[0];
+    const backupData = {
+        destinations: destinations,
+        timestamp: timestamp,
+        version: "1.0"
+    };
+
+    const backupPath = `admin-data/backup/destinations-backup-${timestamp}.json`;
+    await saveToGitHub(backupPath, backupData, `Backup created on ${timestamp}`);
+}
 
 // Add admin-specific styles
 const adminStyle = document.createElement('style');
@@ -359,4 +502,5 @@ adminStyle.textContent = `
         }
     }
 `;
+
 document.head.appendChild(adminStyle);
