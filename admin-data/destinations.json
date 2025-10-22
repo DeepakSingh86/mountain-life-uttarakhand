@@ -1,1 +1,105 @@
-
+{
+  "metadata": {
+    "lastUpdated": "2024-12-19T10:30:00Z",
+    "totalDestinations": 8,
+    "version": "1.2",
+    "lastBackup": "2024-12-19T10:25:00Z"
+  },
+  "destinations": [
+    {
+      "id": 1,
+      "name": "Nainital",
+      "slug": "nainital",
+      "description": "The beautiful lake district of Uttarakhand, known for its stunning Naini Lake and panoramic views of the Himalayas.",
+      "detailedDescription": "Nainital is a picturesque hill station built around a beautiful volcanic lake. It offers boating, trekking, and spectacular views of the snow-capped Himalayas.",
+      "image": "https://images.unsplash.com/photo-1588418075920-9842a9f667fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&w=1000&q=80",
+        "https://images.unsplash.com/photo-1571687949927-43d587bef7b8?ixlib=rb-4.0.3&w=1000&q=80"
+      ],
+      "altitude": "2,084 meters",
+      "bestTime": "March to June",
+      "attractions": ["Naini Lake", "Snow View Point", "Eco Cave Garden", "Naina Devi Temple"],
+      "activities": ["Boating", "Trekking", "Cable Car Ride", "Shopping"],
+      "weather": {
+        "summer": "15°C to 30°C",
+        "winter": "-3°C to 15°C",
+        "monsoon": "12°C to 25°C"
+      },
+      "location": {
+        "district": "Nainital",
+        "coordinates": {
+          "lat": 29.3919,
+          "lng": 79.4542
+        }
+      },
+      "transport": {
+        "nearestAirport": "Pantnagar Airport (68 km)",
+        "nearestRailway": "Kathgodam Railway Station (34 km)",
+        "road": "Well connected by road from Delhi"
+      },
+      "tags": ["family", "honeymoon", "adventure", "budget"],
+      "priority": 1,
+      "isActive": true,
+      "createdAt": "2024-01-15T08:00:00Z",
+      "updatedAt": "2024-12-19T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Mussoorie",
+      "slug": "mussoorie",
+      "description": "The Queen of Hills, offering breathtaking views of the Shivalik ranges and the Doon Valley.",
+      "detailedDescription": "Mussoorie is one of the most popular hill stations in India, known for its scenic beauty, colonial architecture, and pleasant climate throughout the year.",
+      "image": "https://images.unsplash.com/photo-1597148546265-324d312b651b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1571687949927-43d587bef7b8?ixlib=rb-4.0.3&w=1000&q=80"
+      ],
+      "altitude": "2,005 meters",
+      "bestTime": "April to June, September to November",
+      "attractions": ["Kempty Falls", "Gun Hill", "Camel's Back Road", "Lal Tibba"],
+      "activities": ["Trekking", "Shopping", "Photography", "Cable Car"],
+      "weather": {
+        "summer": "10°C to 30°C",
+        "winter": "-1°C to 15°C",
+        "monsoon": "15°C to 25°C"
+      },
+      "location": {
+        "district": "Dehradun",
+        "coordinates": {
+          "lat": 30.4598,
+          "lng": 78.0644
+        }
+      },
+      "transport": {
+        "nearestAirport": "Jolly Grant Airport (60 km)",
+        "nearestRailway": "Dehradun Railway Station (35 km)",
+        "road": "Well connected from Delhi and other major cities"
+      },
+      "tags": ["honeymoon", "family", "luxury", "shopping"],
+      "priority": 2,
+      "isActive": true,
+      "createdAt": "2024-01-15T08:00:00Z",
+      "updatedAt": "2024-12-19T10:30:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Popular Destinations",
+      "slug": "popular",
+      "description": "Most visited hill stations in Uttarakhand"
+    },
+    {
+      "id": 2,
+      "name": "Adventure Sports",
+      "slug": "adventure",
+      "description": "Destinations for trekking and adventure activities"
+    },
+    {
+      "id": 3,
+      "name": "Spiritual Retreats",
+      "slug": "spiritual",
+      "description": "Places with religious and spiritual significance"
+    }
+  ]
+}
