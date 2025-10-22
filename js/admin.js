@@ -394,7 +394,6 @@ async function createBackup() {
     const backupPath = `admin-data/backup/destinations-backup-${timestamp}.json`;
     await saveToGitHub(backupPath, backupData, `Backup created on ${timestamp}`);
 }
-
 // Add admin-specific styles
 const adminStyle = document.createElement('style');
 adminStyle.textContent = `
@@ -502,5 +501,4 @@ adminStyle.textContent = `
         }
     }
 `;
-
 document.head.appendChild(adminStyle);
