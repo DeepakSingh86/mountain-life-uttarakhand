@@ -141,6 +141,103 @@ function renderDestinations() {
     `).join('');
 }
 
+// Enhanced JSON data management
+const JSON_CONFIG = {
+    files: {
+        destinations: 'admin-data/destinations.json',
+        content: 'admin-data/website-content.json',
+        settings: 'admin-data/settings.json'
+    }
+};
+
+// Load website content from JSON
+async function loadWebsiteContent() {
+    try {
+        const response = await fetch(
+            `${GITHUB_API.base}/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${JSON_CONFIG.files.content}`,
+            {
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            const content = JSON.parse(atob(data.content));
+            updateWebsiteContent(content);
+        }
+    } catch (error) {
+        console.error('Error loading website content:', error);
+        loadDefaultContent();
+    }
+}
+
+// Update website with JSON content
+function updateWebsiteContent(content) {
+    // Update hero section
+    if (content.hero) {
+        const heroTitle = document.querySelector('.hero-content h1');
+        const heroSubtitle = document.querySelector('.hero-content p');
+        const heroButton = document.querySelector('.cta-btn');
+        
+        if (heroTitle && content.hero.title) heroTitle.textContent = content.hero.title;
+        if (heroSubtitle && content.hero.subtitle) heroSubtitle.textContent = content.hero.subtitle;
+        if (heroButton && content.hero.ctaButton) heroButton.textContent = content.hero.ctaButton;
+    }
+
+    // Update about section
+    if (content.sections?.about) {
+        const aboutTitle = document.querySelector('.about h2');
+        const aboutContent = document.querySelector('.about-content p');
+        
+        if (aboutTitle && content.sections.about.title) aboutTitle.textContent = content.sections.about.title;
+        if (aboutContent && content.sections.about.content) aboutContent.textContent = content.sections.about.content;
+    }
+
+    // Update contact section
+    if (content.contact) {
+        const contactContent = document.querySelector('.contact-content');
+        if (contactContent) {
+            contactContent.innerHTML = `
+                <p>Email: ${content.contact.email || 'info@travelpahad.com'}</p>
+                <p>Phone: ${content.contact.phone || '+91-9876543210'}</p>
+                ${content.contact.address ? `<p>Address: ${content.contact.address}</p>` : ''}
+            `;
+        }
+    }
+}
+
+// Load default content if JSON fails
+function loadDefaultContent() {
+    const defaultContent = {
+        hero: {
+            title: "Discover the Magical Hills of Uttarakhand",
+            subtitle: "Experience the serene beauty, adventure, and culture of Devbhoomi",
+            ctaButton: "Explore Now"
+        },
+        sections: {
+            about: {
+                title: "About TravelPahad",
+                content: "TravelPahad.com is your ultimate guide to exploring the beautiful hill stations of Uttarakhand."
+            }
+        },
+        contact: {
+            email: "info@travelpahad.com",
+            phone: "+91-9876543210"
+        }
+    };
+    
+    updateWebsiteContent(defaultContent);
+}
+
+// Initialize enhanced functionality
+document.addEventListener('DOMContentLoaded', function() {
+    loadDestinations();
+    loadWebsiteContent();
+    setupMobileMenu();
+});
 // Add some basic styling for loading and error states
 const style = document.createElement('style');
 style.textContent = `
@@ -179,4 +276,5 @@ style.textContent = `
         color: #4a7c1f;
     }
 `;
+
 document.head.appendChild(style);
