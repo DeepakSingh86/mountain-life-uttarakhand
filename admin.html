@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Uttarakhand Hills</title>
+    <title>Admin Panel - Uttarakhand Hills</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -18,9 +18,9 @@
                 <div class="tagline" id="tagline"></div>
                 <nav class="main-nav">
                     <a href="index.html">Home</a>
-                    <a href="about.html" class="active">About Us</a>
+                    <a href="about.html">About Us</a>
                     <a href="gallery.html">Gallery</a>
-                    <a href="admin.html">Admin</a>
+                    <a href="admin.html" class="active">Admin</a>
                 </nav>
             </div>
         </div>
@@ -28,58 +28,185 @@
 
     <section class="page-hero">
         <div class="container">
-            <h1>About Uttarakhand Hills</h1>
-            <p>Your Gateway to the Himalayan Paradise</p>
+            <h1>Admin Panel</h1>
+            <p>Manage Website Content</p>
         </div>
     </section>
 
-    <section class="about-content">
+    <section class="admin-content">
         <div class="container">
-            <div class="about-grid">
-                <div class="about-text">
-                    <h2>Discover Devbhoomi</h2>
-                    <p>Uttarakhand, known as the "Land of the Gods," is nestled in the Himalayan ranges of northern India. Our mission is to showcase the breathtaking beauty and rich cultural heritage of this magnificent region.</p>
-                    
-                    <h3>Our Mission</h3>
-                    <p>To promote sustainable tourism in Uttarakhand while preserving its natural beauty and cultural traditions.</p>
-                    
-                    <h3>Why Uttarakhand?</h3>
-                    <ul>
-                        <li><strong>Spiritual Haven:</strong> Home to Char Dham and numerous sacred temples</li>
-                        <li><strong>Adventure Paradise:</strong> Trekking, rafting, skiing and more</li>
-                        <li><strong>Natural Beauty:</strong> Pristine lakes, lush valleys, and snow-capped peaks</li>
-                        <li><strong>Rich Culture:</strong> Traditional festivals, music, and handicrafts</li>
-                    </ul>
-
-                    <h3>Our Team</h3>
-                    <p>We are a group of travel enthusiasts and local experts dedicated to sharing the authentic experiences of Uttarakhand with the world.</p>
-                </div>
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Uttarakhand Landscape">
+            <!-- Login Section -->
+            <div class="login-section" id="login-section">
+                <div class="login-form">
+                    <h2>Admin Login</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <section class="stats-section">
-        <div class="container">
-            <h2 class="section-title">Uttarakhand at a Glance</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="destinations-count">0</div>
-                    <div class="stat-label">Destinations</div>
+            <!-- Admin Dashboard (Initially Hidden) -->
+            <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+                <div class="admin-header">
+                    <h2>Content Management</h2>
+                    <button class="btn btn-secondary" id="logout-btn">Logout</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="visitors-count">0</div>
-                    <div class="stat-label">Monthly Visitors</div>
+                
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="destinations">Destinations</button>
+                    <button class="tab-btn" data-tab="gallery">Gallery</button>
+                    <button class="tab-btn" data-tab="news">News</button>
+                    <button class="tab-btn" data-tab="testimonials">Testimonials</button>
+                    <button class="tab-btn" data-tab="taglines">Taglines</button>
+                    <button class="tab-btn" data-tab="export">Export Data</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="years-count">0</div>
-                    <div class="stat-label">Years of Excellence</div>
+
+                <!-- Destinations Tab -->
+                <div class="tab-content active" id="destinations-tab">
+                    <h3>Manage Destinations</h3>
+                    <form id="destination-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dest-name">Destination Name:</label>
+                                <input type="text" id="dest-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dest-region">Region:</label>
+                                <select id="dest-region" required>
+                                    <option value="Garhwal">Garhwal</option>
+                                    <option value="Kumaon">Kumaon</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="dest-description">Description:</label>
+                            <textarea id="dest-description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="dest-image">Image URL:</label>
+                            <input type="url" id="dest-image" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Destination</button>
+                    </form>
+                    <div class="existing-items" id="destinations-list">
+                        <!-- Existing destinations will be listed here -->
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="satisfaction-count">0%</div>
-                    <div class="stat-label">Visitor Satisfaction</div>
+
+                <!-- Gallery Tab -->
+                <div class="tab-content" id="gallery-tab">
+                    <h3>Manage Gallery</h3>
+                    <form id="gallery-form">
+                        <div class="form-group">
+                            <label for="gallery-title">Image Title:</label>
+                            <input type="text" id="gallery-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gallery-image">Image URL:</label>
+                            <input type="url" id="gallery-image" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gallery-category">Category:</label>
+                            <select id="gallery-category" required>
+                                <option value="temples">Temples</option>
+                                <option value="hills">Hill Stations</option>
+                                <option value="adventure">Adventure</option>
+                                <option value="wildlife">Wildlife</option>
+                                <option value="culture">Culture</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add to Gallery</button>
+                    </form>
+                    <div class="existing-items" id="gallery-list">
+                        <!-- Existing gallery items will be listed here -->
+                    </div>
+                </div>
+
+                <!-- News Tab -->
+                <div class="tab-content" id="news-tab">
+                    <h3>Manage News</h3>
+                    <form id="news-form">
+                        <div class="form-group">
+                            <label for="news-title">News Title:</label>
+                            <input type="text" id="news-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="news-content">Content:</label>
+                            <textarea id="news-content" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="news-date">Date:</label>
+                            <input type="date" id="news-date" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add News</button>
+                    </form>
+                    <div class="existing-items" id="news-list">
+                        <!-- Existing news items will be listed here -->
+                    </div>
+                </div>
+
+                <!-- Testimonials Tab -->
+                <div class="tab-content" id="testimonials-tab">
+                    <h3>Manage Testimonials</h3>
+                    <form id="testimonial-form">
+                        <div class="form-group">
+                            <label for="testimonial-name">Traveler Name:</label>
+                            <input type="text" id="testimonial-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="testimonial-location">Location:</label>
+                            <input type="text" id="testimonial-location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="testimonial-content">Testimonial:</label>
+                            <textarea id="testimonial-content" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="testimonial-rating">Rating (1-5):</label>
+                            <select id="testimonial-rating" required>
+                                <option value="5">5 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="2">2 Stars</option>
+                                <option value="1">1 Star</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Testimonial</button>
+                    </form>
+                    <div class="existing-items" id="testimonials-list">
+                        <!-- Existing testimonials will be listed here -->
+                    </div>
+                </div>
+
+                <!-- Taglines Tab -->
+                <div class="tab-content" id="taglines-tab">
+                    <h3>Manage Taglines</h3>
+                    <form id="tagline-form">
+                        <div class="form-group">
+                            <label for="new-tagline">New Tagline:</label>
+                            <input type="text" id="new-tagline" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Tagline</button>
+                    </form>
+                    <div class="existing-items" id="taglines-list">
+                        <!-- Existing taglines will be listed here -->
+                    </div>
+                </div>
+
+                <!-- Export Tab -->
+                <div class="tab-content" id="export-tab">
+                    <h3>Export Data</h3>
+                    <p>Export all website data as JSON file for backup or GitHub integration.</p>
+                    <button class="btn btn-primary" id="export-btn">Export Data to JSON</button>
+                    <div class="export-result" id="export-result"></div>
                 </div>
             </div>
         </div>
