@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Uttarakhand Hills</title>
+    <title>About Us - Uttarakhand Hills</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-
-</div>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
@@ -20,9 +18,9 @@
                 <div class="tagline" id="tagline"></div>
                 <nav class="main-nav">
                     <a href="index.html">Home</a>
-                    <a href="about.html">About Us</a>
+                    <a href="about.html" class="active">About Us</a>
                     <a href="gallery.html">Gallery</a>
-                    <a href="admin.html" class="active">Admin</a>
+                    <a href="admin.html">Admin</a>
                 </nav>
             </div>
         </div>
@@ -30,131 +28,58 @@
 
     <section class="page-hero">
         <div class="container">
-            <h1>Admin Panel</h1>
-            <p>Manage Website Content</p>
+            <h1>About Uttarakhand Hills</h1>
+            <p>Your Gateway to the Himalayan Paradise</p>
         </div>
     </section>
 
-    <section class="admin-content">
+    <section class="about-content">
         <div class="container">
-            <!-- Login Section -->
-            <div class="login-section" id="login-section">
-                <div class="login-form">
-                    <h2>Admin Login</h2>
-                    <form id="login-form">
-                        <div class="form-group">
-                            <label for="username">Username:</label>
-                            <input type="text" id="username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password:</label>
-                            <input type="password" id="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </form>
+            <div class="about-grid">
+                <div class="about-text">
+                    <h2>Discover Devbhoomi</h2>
+                    <p>Uttarakhand, known as the "Land of the Gods," is nestled in the Himalayan ranges of northern India. Our mission is to showcase the breathtaking beauty and rich cultural heritage of this magnificent region.</p>
+                    
+                    <h3>Our Mission</h3>
+                    <p>To promote sustainable tourism in Uttarakhand while preserving its natural beauty and cultural traditions.</p>
+                    
+                    <h3>Why Uttarakhand?</h3>
+                    <ul>
+                        <li><strong>Spiritual Haven:</strong> Home to Char Dham and numerous sacred temples</li>
+                        <li><strong>Adventure Paradise:</strong> Trekking, rafting, skiing and more</li>
+                        <li><strong>Natural Beauty:</strong> Pristine lakes, lush valleys, and snow-capped peaks</li>
+                        <li><strong>Rich Culture:</strong> Traditional festivals, music, and handicrafts</li>
+                    </ul>
+
+                    <h3>Our Team</h3>
+                    <p>We are a group of travel enthusiasts and local experts dedicated to sharing the authentic experiences of Uttarakhand with the world.</p>
+                </div>
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Uttarakhand Landscape">
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- Admin Dashboard (Initially Hidden) -->
-            <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
-                <div class="admin-tabs">
-                    <button class="tab-btn active" data-tab="destinations">Destinations</button>
-                    <button class="tab-btn" data-tab="gallery">Gallery</button>
-                    <button class="tab-btn" data-tab="news">News</button>
-                    <button class="tab-btn" data-tab="taglines">Taglines</button>
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title">Uttarakhand at a Glance</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="destinations-count">0</div>
+                    <div class="stat-label">Destinations</div>
                 </div>
-
-                <!-- Destinations Tab -->
-                <div class="tab-content active" id="destinations-tab">
-                    <h3>Manage Destinations</h3>
-                    <form id="destination-form">
-                        <div class="form-group">
-                            <label for="dest-name">Destination Name:</label>
-                            <input type="text" id="dest-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="dest-description">Description:</label>
-                            <textarea id="dest-description" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="dest-image">Image URL:</label>
-                            <input type="url" id="dest-image" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="dest-region">Region:</label>
-                            <input type="text" id="dest-region" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Destination</button>
-                    </form>
-                    <div class="existing-items" id="destinations-list">
-                        <!-- Existing destinations will be listed here -->
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="visitors-count">0</div>
+                    <div class="stat-label">Monthly Visitors</div>
                 </div>
-
-                <!-- Gallery Tab -->
-                <div class="tab-content" id="gallery-tab">
-                    <h3>Manage Gallery</h3>
-                    <form id="gallery-form">
-                        <div class="form-group">
-                            <label for="gallery-title">Image Title:</label>
-                            <input type="text" id="gallery-title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gallery-image">Image URL:</label>
-                            <input type="url" id="gallery-image" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gallery-category">Category:</label>
-                            <select id="gallery-category" required>
-                                <option value="temples">Temples</option>
-                                <option value="hills">Hill Stations</option>
-                                <option value="adventure">Adventure</option>
-                                <option value="wildlife">Wildlife</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add to Gallery</button>
-                    </form>
-                    <div class="existing-items" id="gallery-list">
-                        <!-- Existing gallery items will be listed here -->
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="years-count">0</div>
+                    <div class="stat-label">Years of Excellence</div>
                 </div>
-
-                <!-- News Tab -->
-                <div class="tab-content" id="news-tab">
-                    <h3>Manage News</h3>
-                    <form id="news-form">
-                        <div class="form-group">
-                            <label for="news-title">News Title:</label>
-                            <input type="text" id="news-title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="news-content">Content:</label>
-                            <textarea id="news-content" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="news-date">Date:</label>
-                            <input type="date" id="news-date" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add News</button>
-                    </form>
-                    <div class="existing-items" id="news-list">
-                        <!-- Existing news items will be listed here -->
-                    </div>
-                </div>
-
-                <!-- Taglines Tab -->
-                <div class="tab-content" id="taglines-tab">
-                    <h3>Manage Taglines</h3>
-                    <form id="tagline-form">
-                        <div class="form-group">
-                            <label for="new-tagline">New Tagline:</label>
-                            <input type="text" id="new-tagline" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Tagline</button>
-                    </form>
-                    <div class="existing-items" id="taglines-list">
-                        <!-- Existing taglines will be listed here -->
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="satisfaction-count">0%</div>
+                    <div class="stat-label">Visitor Satisfaction</div>
                 </div>
             </div>
         </div>
@@ -180,19 +105,11 @@
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2024 Uttarakhand Hills. All rights reserved. | TravelIndia86</p>
+                <p>&copy; 2024 Uttarakhand Hills. All rights reserved. | Travel India 86</p>
             </div>
         </div>
-              <!-- GitHub Status -->
-                <div class="github-status-section">
-                <div class="status-indicator" id="github-status">
-                <i class="fas fa-sync fa-spin"></i> Checking GitHub connection...
-    </div>
     </footer>
 
-    <script src="github-service.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
-
