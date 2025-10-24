@@ -13,18 +13,11 @@ class GitHubService {
 
     // Get headers for API requests
     getHeaders() {
-        if (!this.config.token) {
-            console.warn('GitHub token not configured');
-            return {
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json'
-            };
-        }
-        
         return {
             'Authorization': `Bearer ${this.config.token}`,
             'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github.v3+json'
+            'Accept': 'application/vnd.github.v3+json',
+            'X-GitHub-Api-Version': '2022-11-28'
         };
     }
 
@@ -35,21 +28,17 @@ class GitHubService {
                 headers: this.getHeaders()
             });
             
-            if (response.status === 401) {
-                console.error('GitHub authentication failed: Invalid token');
+            if (response.ok) {
+                this.isAuthenticated = true;
+                console.log('✅ GitHub authentication successful');
+                return true;
+            } else {
+                console.error('❌ GitHub authentication failed:', response.status);
                 this.isAuthenticated = false;
                 return false;
             }
-            
-            if (!response.ok) {
-                throw new Error(`Authentication test failed: ${response.status}`);
-            }
-            
-            this.isAuthenticated = true;
-            console.log('GitHub authentication successful');
-            return true;
         } catch (error) {
-            console.error('GitHub authentication test failed:', error);
+            console.error('❌ GitHub authentication error:', error);
             this.isAuthenticated = false;
             return false;
         }
@@ -60,18 +49,11 @@ class GitHubService {
         try {
             const response = await fetch(
                 `${this.baseURL}/repos/${this.config.username}/${this.config.repo}/contents/${filePath}`,
-                { 
-                    method: 'GET',
-                    headers: this.getHeaders()
-                }
+                { headers: this.getHeaders() }
             );
             
             if (response.status === 404) {
                 return null; // File doesn't exist yet
-            }
-            
-            if (response.status === 401) {
-                throw new Error('Authentication failed: Please check your GitHub token');
             }
             
             if (!response.ok) {
@@ -82,34 +64,29 @@ class GitHubService {
             return data.sha;
         } catch (error) {
             console.error('Error getting file SHA:', error);
-            throw error;
+            return null;
         }
     }
 
     // Read data from GitHub
     async readData(filePath) {
         try {
-            console.log(`Reading data from: ${filePath}`);
+            console.log(`📖 Reading ${filePath} from GitHub...`);
             
             const response = await fetch(
                 `${this.baseURL}/repos/${this.config.username}/${this.config.repo}/contents/${filePath}`,
-                { 
-                    method: 'GET',
-                    headers: this.getHeaders()
-                }
+                { headers: this.getHeaders() }
             );
             
             if (response.status === 404) {
-                console.log(`File ${filePath} not found, returning default data`);
-                return this.getDefaultDataForPath(filePath);
-            }
-            
-            if (response.status === 401) {
-                throw new Error('Authentication failed: Invalid GitHub token');
+                console.log(`📝 File ${filePath} not found, creating default...`);
+                const defaultData = this.getDefaultDataForPath(filePath);
+                await this.createFile(filePath, defaultData);
+                return defaultData;
             }
             
             if (!response.ok) {
-                throw new Error(`Failed to read data: ${response.status} ${response.statusText}`);
+                throw new Error(`Failed to read ${filePath}: ${response.status}`);
             }
             
             const data = await response.json();
@@ -118,23 +95,53 @@ class GitHubService {
                 throw new Error('No content found in response');
             }
             
-            const content = atob(data.content.replace(/\n/g, '')); // Decode base64
-            return JSON.parse(content);
+            // Decode base64 content
+            const content = atob(data.content.replace(/\n/g, ''));
+            const parsedData = JSON.parse(content);
+            console.log(`✅ Successfully loaded ${filePath}`);
+            return parsedData;
         } catch (error) {
-            console.error(`Error reading data from ${filePath}:`, error);
-            // Return default data instead of throwing
+            console.error(`❌ Error reading ${filePath}:`, error);
             return this.getDefaultDataForPath(filePath);
         }
     }
 
-    // Write data to GitHub
-    async writeData(filePath, content, commitMessage = 'Update data via website') {
+    // Create new file in GitHub
+    async createFile(filePath, content, commitMessage = 'Create file via website') {
         try {
-            // Test authentication first
-            if (!await this.testAuthentication()) {
-                throw new Error('Cannot write to GitHub: Authentication failed. Please check your token.');
+            const encodedContent = btoa(JSON.stringify(content, null, 2));
+            
+            const body = {
+                message: commitMessage,
+                content: encodedContent,
+                branch: this.config.branch
+            };
+            
+            const response = await fetch(
+                `${this.baseURL}/repos/${this.config.username}/${this.config.repo}/contents/${filePath}`,
+                {
+                    method: 'PUT',
+                    headers: this.getHeaders(),
+                    body: JSON.stringify(body)
+                }
+            );
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Failed to create file: ${errorData.message}`);
             }
+            
+            console.log(`✅ Created ${filePath} in GitHub`);
+            return true;
+        } catch (error) {
+            console.error(`❌ Error creating ${filePath}:`, error);
+            throw error;
+        }
+    }
 
+    // Write data to GitHub
+    async writeData(filePath, content, commitMessage = 'Update via website') {
+        try {
             const sha = await this.getFileSHA(filePath);
             const encodedContent = btoa(JSON.stringify(content, null, 2));
             
@@ -144,7 +151,6 @@ class GitHubService {
                 branch: this.config.branch
             };
             
-            // Add SHA if file exists (for updates)
             if (sha) {
                 body.sha = sha;
             }
@@ -160,13 +166,13 @@ class GitHubService {
             
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(`Failed to write data: ${errorData.message || response.status}`);
+                throw new Error(`Failed to write data: ${errorData.message}`);
             }
             
-            console.log(`Successfully saved data to ${filePath}`);
+            console.log(`✅ Successfully saved ${filePath} to GitHub`);
             return true;
         } catch (error) {
-            console.error('Error writing data to GitHub:', error);
+            console.error(`❌ Error writing ${filePath}:`, error);
             throw error;
         }
     }
@@ -174,12 +180,8 @@ class GitHubService {
     // Save all website data to GitHub
     async saveAllData(websiteData) {
         try {
-            console.log('Saving all data to GitHub...');
+            console.log('💾 Saving all data to GitHub...');
             
-            if (!await this.testAuthentication()) {
-                throw new Error('Cannot save data: GitHub authentication failed');
-            }
-
             const results = await Promise.allSettled([
                 this.writeData('data/destinations.json', websiteData.destinations, 'Update destinations'),
                 this.writeData('data/gallery.json', websiteData.gallery, 'Update gallery'),
@@ -187,17 +189,16 @@ class GitHubService {
                 this.writeData('data/taglines.json', websiteData.taglines, 'Update taglines')
             ]);
 
-            // Check if any failed
             const failed = results.filter(result => result.status === 'rejected');
             if (failed.length > 0) {
-                console.warn(`Some data failed to save: ${failed.length} files`);
+                console.warn(`⚠️ Some files failed to save: ${failed.length}`);
                 failed.forEach(fail => console.error('Failed:', fail.reason));
             }
 
-            console.log('Data save operation completed');
+            console.log('✅ All data save operations completed');
             return true;
         } catch (error) {
-            console.error('Error saving all data:', error);
+            console.error('❌ Error saving all data:', error);
             throw error;
         }
     }
@@ -205,7 +206,7 @@ class GitHubService {
     // Load all website data from GitHub
     async loadAllData() {
         try {
-            console.log('Loading all data from GitHub...');
+            console.log('📥 Loading all data from GitHub...');
             
             const [destinations, gallery, news, taglines] = await Promise.all([
                 this.readData('data/destinations.json'),
@@ -215,32 +216,32 @@ class GitHubService {
             ]);
             
             const loadedData = {
-                destinations: Array.isArray(destinations) ? destinations : [],
-                gallery: Array.isArray(gallery) ? gallery : [],
-                news: Array.isArray(news) ? news : [],
-                taglines: Array.isArray(taglines) ? taglines : this.getDefaultTaglines()
+                destinations: destinations || [],
+                gallery: gallery || [],
+                news: news || [],
+                taglines: taglines || this.getDefaultTaglines()
             };
             
-            console.log('Data loaded successfully:', loadedData);
+            console.log('✅ All data loaded successfully from GitHub');
             return loadedData;
         } catch (error) {
-            console.error('Error loading data from GitHub:', error);
-            // Return default data as fallback
+            console.error('❌ Error loading data from GitHub:', error);
             return this.getDefaultData();
         }
     }
 
     // Get default data for specific file path
     getDefaultDataForPath(filePath) {
+        const defaultData = this.getDefaultData();
         switch(filePath) {
             case 'data/destinations.json':
-                return this.getDefaultData().destinations;
+                return defaultData.destinations;
             case 'data/gallery.json':
-                return this.getDefaultData().gallery;
+                return defaultData.gallery;
             case 'data/news.json':
-                return this.getDefaultData().news;
+                return defaultData.news;
             case 'data/taglines.json':
-                return this.getDefaultData().taglines;
+                return defaultData.taglines;
             default:
                 return [];
         }
@@ -252,24 +253,17 @@ class GitHubService {
             destinations: [
                 {
                     id: 1,
-                    name: "Rishikesh",
-                    description: "The Yoga Capital of the World, situated on the banks of the holy Ganges river. Known for its spiritual atmosphere and adventure activities.",
+                    name: "Rishikesh - Yoga Capital",
+                    description: "The Yoga Capital of the World, situated on the banks of the holy Ganges river. Known for spiritual retreats and adventure sports.",
                     image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
                     region: "Garhwal"
                 },
                 {
                     id: 2,
-                    name: "Nainital",
-                    description: "The Lake District of India, famous for its beautiful lakes and pleasant climate. A perfect hill station for family vacations.",
+                    name: "Nainital - Lake District",
+                    description: "The Lake District of India, famous for its beautiful Naini Lake and pleasant climate throughout the year.",
                     image: "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
                     region: "Kumaon"
-                },
-                {
-                    id: 3,
-                    name: "Mussoorie",
-                    description: "Queen of the Hills, offering panoramic views of the Himalayan ranges. Famous for its colonial architecture and scenic beauty.",
-                    image: "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    region: "Garhwal"
                 }
             ],
             gallery: [
@@ -284,38 +278,14 @@ class GitHubService {
                     title: "Valley of Flowers",
                     image: "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
                     category: "hills"
-                },
-                {
-                    id: 3,
-                    title: "River Rafting in Rishikesh",
-                    image: "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    category: "adventure"
-                },
-                {
-                    id: 4,
-                    title: "Jim Corbett National Park",
-                    image: "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    category: "wildlife"
                 }
             ],
             news: [
                 {
                     id: 1,
                     title: "Char Dham Yatra 2024 Season Begins",
-                    content: "The sacred Char Dham Yatra has commenced with enhanced safety measures and improved facilities for pilgrims. Book your journey now.",
+                    content: "The sacred Char Dham Yatra pilgrimage has officially started with enhanced facilities and safety measures for all devotees.",
                     date: "2024-05-01"
-                },
-                {
-                    id: 2,
-                    title: "New Adventure Sports Launched in Uttarakhand",
-                    content: "Experience thrilling new adventure activities including paragliding, rock climbing, and mountain biking in various hill stations.",
-                    date: "2024-04-25"
-                },
-                {
-                    id: 3,
-                    title: "Monsoon Tourism Promotion",
-                    content: "Special monsoon packages available for hill stations. Enjoy the lush green landscapes and pleasant weather.",
-                    date: "2024-04-20"
                 }
             ],
             taglines: this.getDefaultTaglines()
@@ -325,26 +295,18 @@ class GitHubService {
     getDefaultTaglines() {
         return [
             "Discover the Land of Gods - Uttarakhand",
-            "Experience Serenity in the Himalayan Abode", 
+            "Experience Serenity in the Himalayan Abode",
             "Your Gateway to Spiritual and Adventure Tourism",
             "Explore the Unexplored Beauty of Devbhoomi",
-            "Where Mountains Meet Heaven - Uttarakhand",
-            "Journey Through the Heart of Himalayas"
+            "Where Mountains Meet Heaven - Uttarakhand Awaits"
         ];
     }
 
     // Initialize GitHub connection
     async initialize() {
-        try {
-            await this.testAuthentication();
-            return this.isAuthenticated;
-        } catch (error) {
-            console.error('Failed to initialize GitHub service:', error);
-            return false;
-        }
+        return await this.testAuthentication();
     }
 }
 
 // Create global instance
 const githubService = new GitHubService();
-
