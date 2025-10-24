@@ -554,3 +554,14 @@ footer {
         text-align: center;
     }
 }
+.github-status-bar {
+    background: #f8f9fa;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.github-status {
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
