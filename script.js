@@ -12,9 +12,6 @@ const ADMIN_CREDENTIALS = {
     password: "uttarakhand2024"
 };
 
-// GitHub connection status
-let githubConnected = false;
-
 // Initialize the website
 document.addEventListener('DOMContentLoaded', async function() {
     await initializeWebsite();
@@ -23,16 +20,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Initialize website
 async function initializeWebsite() {
     try {
-        showLoading('🚀 Initializing Uttarakhand Hills Website...');
-        
-        // Initialize GitHub connection
-        githubConnected = await githubService.initialize();
-        
-        if (githubConnected) {
-            showNotification('✅ Connected to GitHub successfully!', 'success');
-        } else {
-            showNotification('⚠️ GitHub connection failed. Using local mode.', 'warning');
-        }
+        showLoading('🚀 Starting Uttarakhand Hills Website...');
         
         // Load data
         await loadData();
@@ -40,17 +28,19 @@ async function initializeWebsite() {
         initializePageSpecificFunctions();
         
         hideLoading();
+        showNotification('🏔️ Welcome to Uttarakhand Hills!', 'success');
         
     } catch (error) {
         console.error('Failed to initialize website:', error);
         hideLoading();
-        showNotification('⚠️ Using default data mode', 'info');
         
         // Load default data as fallback
         websiteData = githubService.getDefaultData();
         updatePageContent();
         initializeTaglineRotation();
         initializePageSpecificFunctions();
+        
+        showNotification('📋 Using default data', 'info');
     }
 }
 
@@ -67,31 +57,103 @@ async function loadData() {
         hideLoading();
         websiteData = githubService.getDefaultData();
         updatePageContent();
-        showNotification('📋 Loaded default data', 'info');
     }
 }
 
-// Save data to GitHub
+// Save data and prepare for GitHub upload
 async function saveData(dataType = null) {
     try {
-        showLoading('💾 Saving to GitHub...');
+        showLoading('💾 Preparing data for GitHub...');
         
         if (dataType) {
-            await githubService.writeData(`data/${dataType}.json`, websiteData[dataType]);
+            await githubService.saveData(`data/${dataType}.json`, websiteData[dataType]);
         } else {
             await githubService.saveAllData(websiteData);
         }
         
         hideLoading();
-        showNotification('✅ Data saved to GitHub successfully!', 'success');
+        
+        // Show upload instructions
+        showUploadInstructions(dataType);
         return true;
         
     } catch (error) {
         console.error('Failed to save data:', error);
         hideLoading();
-        showNotification('❌ Failed to save to GitHub', 'error');
+        showNotification('❌ Failed to prepare data for upload', 'error');
         return false;
     }
+}
+
+// Show upload instructions to user
+function showUploadInstructions(dataType) {
+    const repoURL = githubService.getRepoURL();
+    const fileName = dataType ? `${dataType}.json` : 'all files';
+    
+    const message = `
+        ✅ Data prepared successfully!
+        
+        📁 To upload to GitHub:
+        1. Go to: ${repoURL}
+        2. Click "Add file" → "Upload files"
+        3. Upload the downloaded JSON file(s)
+        4. Commit changes with message "Update ${fileName}"
+        5. Your changes will be live immediately!
+        
+        💡 The files have been downloaded to your computer.
+    `;
+    
+    // Create modal with instructions
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 10001;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+    `;
+    
+    modal.innerHTML = `
+        <h3 style="color: #1a5f7a; margin-bottom: 20px;">📤 Upload to GitHub</h3>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; line-height: 1.5; white-space: pre-line;">
+            ${message}
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Close
+            </button>
+            <button onclick="window.open('${repoURL}', '_blank'); this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #1a5f7a; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Open GitHub
+            </button>
+        </div>
+    `;
+    
+    // Add overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 10000;
+    `;
+    
+    overlay.onclick = () => {
+        modal.remove();
+        overlay.remove();
+    };
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
 }
 
 // Update tagline every 2 minutes
@@ -129,17 +191,33 @@ function initializePageSpecificFunctions() {
 
 // Home page functions
 function initializeHomePage() {
-    updateGitHubStatus();
+    // Add GitHub repo info
+    addGitHubInfo();
 }
 
-// Update GitHub connection status display
-function updateGitHubStatus() {
-    const statusElements = document.querySelectorAll('.github-status');
-    statusElements.forEach(element => {
-        element.innerHTML = githubConnected ? 
-            '<span style="color: #38b000"><i class="fas fa-check-circle"></i> GitHub Connected</span>' :
-            '<span style="color: #ff6b6b"><i class="fas fa-exclamation-triangle"></i> Local Mode</span>';
-    });
+// Add GitHub repository information
+function addGitHubInfo() {
+    const repoURL = githubService.getRepoURL();
+    const infoDiv = document.createElement('div');
+    infoDiv.style.cssText = `
+        text-align: center;
+        margin: 20px 0;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        font-size: 14px;
+    `;
+    infoDiv.innerHTML = `
+        <span>📁 Data loaded from: </span>
+        <a href="${repoURL}" target="_blank" style="color: #1a5f7a; text-decoration: none;">
+            GitHub Repository
+        </a>
+    `;
+    
+    const container = document.querySelector('.container');
+    if (container) {
+        container.appendChild(infoDiv);
+    }
 }
 
 // Gallery page functions
@@ -169,7 +247,8 @@ function filterGallery(category) {
 
 // Admin page functions
 function initializeAdminPage() {
-    updateGitHubStatus();
+    // Add GitHub upload section
+    addGitHubUploadSection();
     
     // Login form
     const loginForm = document.getElementById('login-form');
@@ -218,6 +297,45 @@ function initializeAdminPage() {
     if (taglineForm) taglineForm.addEventListener('submit', (e) => { e.preventDefault(); addTagline(); });
 }
 
+// Add GitHub upload section to admin panel
+function addGitHubUploadSection() {
+    const adminDashboard = document.getElementById('admin-dashboard');
+    if (adminDashboard) {
+        const uploadSection = document.createElement('div');
+        uploadSection.className = 'upload-section';
+        uploadSection.style.cssText = `
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #1a5f7a;
+        `;
+        
+        uploadSection.innerHTML = `
+            <h3 style="color: #1a5f7a; margin-bottom: 15px;">📤 GitHub Upload</h3>
+            <p style="margin-bottom: 15px; color: #555;">
+                After making changes, upload the data files to GitHub to make them live on your website.
+            </p>
+            <button onclick="uploadAllToGitHub()" class="btn btn-primary" style="margin-right: 10px;">
+                <i class="fas fa-cloud-upload-alt"></i> Upload All to GitHub
+            </button>
+            <button onclick="showUploadInstructions()" class="btn" style="background: #6c757d; color: white;">
+                <i class="fas fa-question-circle"></i> Upload Guide
+            </button>
+        `;
+        
+        adminDashboard.insertBefore(uploadSection, adminDashboard.firstChild);
+    }
+}
+
+// Upload all data to GitHub
+async function uploadAllToGitHub() {
+    const saved = await saveData();
+    if (saved) {
+        showNotification('✅ All data prepared for GitHub upload!', 'success');
+    }
+}
+
 // Load data into admin panel
 function loadAdminData() {
     loadDestinationsList();
@@ -247,12 +365,10 @@ async function addDestination() {
     };
     
     websiteData.destinations.push(newDestination);
-    const saved = await saveData('destinations');
-    if (saved) {
-        loadDestinationsList();
-        document.getElementById('destination-form').reset();
-        updatePageContent();
-    }
+    await saveData('destinations');
+    loadDestinationsList();
+    document.getElementById('destination-form').reset();
+    updatePageContent();
 }
 
 // Load destinations in admin panel
@@ -287,11 +403,9 @@ function loadDestinationsList() {
 async function deleteDestination(id) {
     if (confirm('Are you sure you want to delete this destination?')) {
         websiteData.destinations = websiteData.destinations.filter(dest => dest.id !== id);
-        const saved = await saveData('destinations');
-        if (saved) {
-            loadDestinationsList();
-            updatePageContent();
-        }
+        await saveData('destinations');
+        loadDestinationsList();
+        updatePageContent();
     }
 }
 
@@ -314,12 +428,10 @@ async function addGalleryItem() {
     };
     
     websiteData.gallery.push(newGalleryItem);
-    const saved = await saveData('gallery');
-    if (saved) {
-        loadGalleryList();
-        document.getElementById('gallery-form').reset();
-        updatePageContent();
-    }
+    await saveData('gallery');
+    loadGalleryList();
+    document.getElementById('gallery-form').reset();
+    updatePageContent();
 }
 
 // Load gallery items in admin panel
@@ -354,11 +466,9 @@ function loadGalleryList() {
 async function deleteGalleryItem(id) {
     if (confirm('Are you sure you want to delete this gallery item?')) {
         websiteData.gallery = websiteData.gallery.filter(item => item.id !== id);
-        const saved = await saveData('gallery');
-        if (saved) {
-            loadGalleryList();
-            updatePageContent();
-        }
+        await saveData('gallery');
+        loadGalleryList();
+        updatePageContent();
     }
 }
 
@@ -381,12 +491,10 @@ async function addNewsItem() {
     };
     
     websiteData.news.push(newNewsItem);
-    const saved = await saveData('news');
-    if (saved) {
-        loadNewsList();
-        document.getElementById('news-form').reset();
-        updatePageContent();
-    }
+    await saveData('news');
+    loadNewsList();
+    document.getElementById('news-form').reset();
+    updatePageContent();
 }
 
 // Load news items in admin panel
@@ -421,11 +529,9 @@ function loadNewsList() {
 async function deleteNewsItem(id) {
     if (confirm('Are you sure you want to delete this news item?')) {
         websiteData.news = websiteData.news.filter(item => item.id !== id);
-        const saved = await saveData('news');
-        if (saved) {
-            loadNewsList();
-            updatePageContent();
-        }
+        await saveData('news');
+        loadNewsList();
+        updatePageContent();
     }
 }
 
@@ -439,11 +545,9 @@ async function addTagline() {
     }
     
     websiteData.taglines.push(tagline);
-    const saved = await saveData('taglines');
-    if (saved) {
-        loadTaglinesList();
-        document.getElementById('tagline-form').reset();
-    }
+    await saveData('taglines');
+    loadTaglinesList();
+    document.getElementById('tagline-form').reset();
 }
 
 // Load taglines in admin panel
