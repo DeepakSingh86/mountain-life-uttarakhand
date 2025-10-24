@@ -9,7 +9,7 @@ let websiteData = {
 // Admin credentials
 const ADMIN_CREDENTIALS = {
     username: "admin",
-    password: "uttarakhand2024"
+    password: "1"
 };
 
 // Initialize the website
@@ -551,3 +551,4 @@ function showNotification(message, type = 'info') {
         notification.remove();
     }, 3000);
 }
+
