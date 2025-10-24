@@ -50,11 +50,11 @@ async function saveData(dataType = null) {
         }
         
         hideLoading();
-        showNotification('Data saved successfully!', 'success');
+        showNotification('Data saved successfully to GitHub!', 'success');
     } catch (error) {
         console.error('Failed to save data:', error);
         hideLoading();
-        showNotification('Failed to save data. Please try again.', 'error');
+        showNotification('Failed to save data to GitHub. Please try again.', 'error');
     }
 }
 
@@ -542,26 +542,7 @@ function hideLoading() {
 // Notification function
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 4px;
-        color: white;
-        z-index: 10000;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    `;
-    
-    if (type === 'success') {
-        notification.style.background = 'var(--success)';
-    } else if (type === 'error') {
-        notification.style.background = 'var(--accent)';
-    } else {
-        notification.style.background = 'var(--primary)';
-    }
-    
+    notification.className = `notification ${type}`;
     notification.textContent = message;
     document.body.appendChild(notification);
     
