@@ -23,15 +23,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Initialize website
 async function initializeWebsite() {
     try {
-        showLoading('Initializing website...');
+        showLoading('🚀 Initializing Uttarakhand Hills Website...');
         
         // Initialize GitHub connection
         githubConnected = await githubService.initialize();
         
         if (githubConnected) {
-            showNotification('Connected to GitHub successfully!', 'success');
+            showNotification('✅ Connected to GitHub successfully!', 'success');
         } else {
-            showNotification('Using local data mode. GitHub connection failed.', 'warning');
+            showNotification('⚠️ GitHub connection failed. Using local mode.', 'warning');
         }
         
         // Load data
@@ -40,10 +40,11 @@ async function initializeWebsite() {
         initializePageSpecificFunctions();
         
         hideLoading();
+        
     } catch (error) {
         console.error('Failed to initialize website:', error);
         hideLoading();
-        showNotification('Website initialized with default data', 'info');
+        showNotification('⚠️ Using default data mode', 'info');
         
         // Load default data as fallback
         websiteData = githubService.getDefaultData();
@@ -53,76 +54,58 @@ async function initializeWebsite() {
     }
 }
 
-// Load data from GitHub or use default
+// Load data from GitHub
 async function loadData() {
     try {
-        showLoading('Loading data...');
-        
-        if (githubConnected) {
-            websiteData = await githubService.loadAllData();
-            console.log('Data loaded from GitHub:', websiteData);
-        } else {
-            websiteData = githubService.getDefaultData();
-            console.log('Using default data:', websiteData);
-        }
-        
+        showLoading('📥 Loading data from GitHub...');
+        websiteData = await githubService.loadAllData();
         updatePageContent();
         hideLoading();
+        
     } catch (error) {
         console.error('Failed to load data:', error);
         hideLoading();
-        
-        // Fallback to default data
         websiteData = githubService.getDefaultData();
         updatePageContent();
-        showNotification('Loaded default data due to connection issues', 'warning');
+        showNotification('📋 Loaded default data', 'info');
     }
 }
 
 // Save data to GitHub
 async function saveData(dataType = null) {
     try {
-        if (!githubConnected) {
-            throw new Error('Not connected to GitHub. Please check your token and connection.');
-        }
-
-        showLoading('Saving data to GitHub...');
+        showLoading('💾 Saving to GitHub...');
         
         if (dataType) {
-            // Save specific data type
             await githubService.writeData(`data/${dataType}.json`, websiteData[dataType]);
         } else {
-            // Save all data
             await githubService.saveAllData(websiteData);
         }
         
         hideLoading();
-        showNotification('Data saved successfully to GitHub!', 'success');
+        showNotification('✅ Data saved to GitHub successfully!', 'success');
         return true;
+        
     } catch (error) {
         console.error('Failed to save data:', error);
         hideLoading();
-        showNotification(`Failed to save data: ${error.message}`, 'error');
+        showNotification('❌ Failed to save to GitHub', 'error');
         return false;
     }
 }
 
 // Update tagline every 2 minutes
 function initializeTaglineRotation() {
-    updateTagline(); // Initial update
-    
-    // Update every 2 minutes (120000 milliseconds)
+    updateTagline();
     setInterval(updateTagline, 120000);
 }
 
 // Update the tagline display
 function updateTagline() {
     const taglineElement = document.getElementById('tagline');
-    if (taglineElement && websiteData.taglines && websiteData.taglines.length > 0) {
+    if (taglineElement && websiteData.taglines.length > 0) {
         const randomIndex = Math.floor(Math.random() * websiteData.taglines.length);
         taglineElement.textContent = websiteData.taglines[randomIndex];
-    } else if (taglineElement) {
-        taglineElement.textContent = "Discover the Land of Gods - Uttarakhand";
     }
 }
 
@@ -146,31 +129,26 @@ function initializePageSpecificFunctions() {
 
 // Home page functions
 function initializeHomePage() {
-    // Update GitHub status display
     updateGitHubStatus();
 }
 
 // Update GitHub connection status display
 function updateGitHubStatus() {
-    const statusElement = document.getElementById('github-status');
-    if (statusElement) {
-        statusElement.innerHTML = githubConnected ? 
-            '<span style="color: var(--success)"><i class="fas fa-check-circle"></i> Connected to GitHub</span>' :
-            '<span style="color: var(--accent)"><i class="fas fa-exclamation-triangle"></i> Local Mode</span>';
-    }
+    const statusElements = document.querySelectorAll('.github-status');
+    statusElements.forEach(element => {
+        element.innerHTML = githubConnected ? 
+            '<span style="color: #38b000"><i class="fas fa-check-circle"></i> GitHub Connected</span>' :
+            '<span style="color: #ff6b6b"><i class="fas fa-exclamation-triangle"></i> Local Mode</span>';
+    });
 }
 
 // Gallery page functions
 function initializeGalleryPage() {
-    // Filter functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
-            
-            // Filter gallery
             const filter = this.getAttribute('data-filter');
             filterGallery(filter);
         });
@@ -180,7 +158,6 @@ function initializeGalleryPage() {
 // Filter gallery items
 function filterGallery(category) {
     const galleryItems = document.querySelectorAll('.gallery-item');
-    
     galleryItems.forEach(item => {
         if (category === 'all' || item.getAttribute('data-category') === category) {
             item.style.display = 'block';
@@ -192,7 +169,6 @@ function filterGallery(category) {
 
 // Admin page functions
 function initializeAdminPage() {
-    // Update GitHub status in admin
     updateGitHubStatus();
     
     // Login form
@@ -207,8 +183,9 @@ function initializeAdminPage() {
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
                 loadAdminData();
+                showNotification('🔓 Admin access granted', 'success');
             } else {
-                showNotification('Invalid credentials!', 'error');
+                showNotification('❌ Invalid credentials', 'error');
             }
         });
     }
@@ -217,11 +194,8 @@ function initializeAdminPage() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Update active tab button
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
-            
-            // Show corresponding tab content
             const tabId = this.getAttribute('data-tab') + '-tab';
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -230,41 +204,18 @@ function initializeAdminPage() {
         });
     });
     
-    // Destination form
+    // Form submissions
     const destinationForm = document.getElementById('destination-form');
-    if (destinationForm) {
-        destinationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            addDestination();
-        });
-    }
+    if (destinationForm) destinationForm.addEventListener('submit', (e) => { e.preventDefault(); addDestination(); });
     
-    // Gallery form
     const galleryForm = document.getElementById('gallery-form');
-    if (galleryForm) {
-        galleryForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            addGalleryItem();
-        });
-    }
+    if (galleryForm) galleryForm.addEventListener('submit', (e) => { e.preventDefault(); addGalleryItem(); });
     
-    // News form
     const newsForm = document.getElementById('news-form');
-    if (newsForm) {
-        newsForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            addNewsItem();
-        });
-    }
+    if (newsForm) newsForm.addEventListener('submit', (e) => { e.preventDefault(); addNewsItem(); });
     
-    // Tagline form
     const taglineForm = document.getElementById('tagline-form');
-    if (taglineForm) {
-        taglineForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            addTagline();
-        });
-    }
+    if (taglineForm) taglineForm.addEventListener('submit', (e) => { e.preventDefault(); addTagline(); });
 }
 
 // Load data into admin panel
@@ -283,12 +234,12 @@ async function addDestination() {
     const region = document.getElementById('dest-region').value;
     
     if (!name || !description || !image || !region) {
-        showNotification('Please fill all fields', 'error');
+        showNotification('❌ Please fill all fields', 'error');
         return;
     }
     
     const newDestination = {
-        id: Date.now(), // Simple ID generation
+        id: Date.now(),
         name,
         description,
         image,
@@ -296,12 +247,10 @@ async function addDestination() {
     };
     
     websiteData.destinations.push(newDestination);
-    
     const saved = await saveData('destinations');
     if (saved) {
         loadDestinationsList();
         document.getElementById('destination-form').reset();
-        // Update the home page if we're on it
         updatePageContent();
     }
 }
@@ -313,7 +262,7 @@ function loadDestinationsList() {
     
     listElement.innerHTML = '';
     
-    if (!websiteData.destinations || websiteData.destinations.length === 0) {
+    if (websiteData.destinations.length === 0) {
         listElement.innerHTML = '<p>No destinations added yet.</p>';
         return;
     }
@@ -326,7 +275,9 @@ function loadDestinationsList() {
                 <h4>${destination.name}</h4>
                 <p>${destination.region} - ${destination.description.substring(0, 50)}...</p>
             </div>
-            <button class="delete-btn" onclick="deleteDestination(${destination.id})">Delete</button>
+            <button class="delete-btn" onclick="deleteDestination(${destination.id})">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         `;
         listElement.appendChild(item);
     });
@@ -351,7 +302,7 @@ async function addGalleryItem() {
     const category = document.getElementById('gallery-category').value;
     
     if (!title || !image || !category) {
-        showNotification('Please fill all fields', 'error');
+        showNotification('❌ Please fill all fields', 'error');
         return;
     }
     
@@ -363,12 +314,10 @@ async function addGalleryItem() {
     };
     
     websiteData.gallery.push(newGalleryItem);
-    
     const saved = await saveData('gallery');
     if (saved) {
         loadGalleryList();
         document.getElementById('gallery-form').reset();
-        // Update the gallery page if we're on it
         updatePageContent();
     }
 }
@@ -380,7 +329,7 @@ function loadGalleryList() {
     
     listElement.innerHTML = '';
     
-    if (!websiteData.gallery || websiteData.gallery.length === 0) {
+    if (websiteData.gallery.length === 0) {
         listElement.innerHTML = '<p>No gallery items added yet.</p>';
         return;
     }
@@ -393,7 +342,9 @@ function loadGalleryList() {
                 <h4>${item.title}</h4>
                 <p>Category: ${item.category}</p>
             </div>
-            <button class="delete-btn" onclick="deleteGalleryItem(${item.id})">Delete</button>
+            <button class="delete-btn" onclick="deleteGalleryItem(${item.id})">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         `;
         listElement.appendChild(listItem);
     });
@@ -418,7 +369,7 @@ async function addNewsItem() {
     const date = document.getElementById('news-date').value;
     
     if (!title || !content || !date) {
-        showNotification('Please fill all fields', 'error');
+        showNotification('❌ Please fill all fields', 'error');
         return;
     }
     
@@ -430,12 +381,10 @@ async function addNewsItem() {
     };
     
     websiteData.news.push(newNewsItem);
-    
     const saved = await saveData('news');
     if (saved) {
         loadNewsList();
         document.getElementById('news-form').reset();
-        // Update the home page if we're on it
         updatePageContent();
     }
 }
@@ -447,7 +396,7 @@ function loadNewsList() {
     
     listElement.innerHTML = '';
     
-    if (!websiteData.news || websiteData.news.length === 0) {
+    if (websiteData.news.length === 0) {
         listElement.innerHTML = '<p>No news items added yet.</p>';
         return;
     }
@@ -460,7 +409,9 @@ function loadNewsList() {
                 <h4>${item.title}</h4>
                 <p>Date: ${item.date}</p>
             </div>
-            <button class="delete-btn" onclick="deleteNewsItem(${item.id})">Delete</button>
+            <button class="delete-btn" onclick="deleteNewsItem(${item.id})">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         `;
         listElement.appendChild(listItem);
     });
@@ -483,17 +434,15 @@ async function addTagline() {
     const tagline = document.getElementById('new-tagline').value;
     
     if (!tagline) {
-        showNotification('Please enter a tagline', 'error');
+        showNotification('❌ Please enter a tagline', 'error');
         return;
     }
     
     websiteData.taglines.push(tagline);
-    
     const saved = await saveData('taglines');
     if (saved) {
         loadTaglinesList();
         document.getElementById('tagline-form').reset();
-        // The tagline rotation will pick up the new tagline automatically
     }
 }
 
@@ -504,7 +453,7 @@ function loadTaglinesList() {
     
     listElement.innerHTML = '';
     
-    if (!websiteData.taglines || websiteData.taglines.length === 0) {
+    if (websiteData.taglines.length === 0) {
         listElement.innerHTML = '<p>No taglines added yet.</p>';
         return;
     }
@@ -516,7 +465,9 @@ function loadTaglinesList() {
             <div>
                 <p>"${tagline}"</p>
             </div>
-            <button class="delete-btn" onclick="deleteTagline(${index})">Delete</button>
+            <button class="delete-btn" onclick="deleteTagline(${index})">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         `;
         listElement.appendChild(listItem);
     });
@@ -559,8 +510,8 @@ function updateDestinations() {
     
     gridElement.innerHTML = '';
     
-    if (!websiteData.destinations || websiteData.destinations.length === 0) {
-        gridElement.innerHTML = '<p>No destinations available. Please check back later.</p>';
+    if (websiteData.destinations.length === 0) {
+        gridElement.innerHTML = '<p>No destinations available. Add some in the admin panel.</p>';
         return;
     }
     
@@ -586,7 +537,7 @@ function updateNews() {
     
     gridElement.innerHTML = '';
     
-    if (!websiteData.news || websiteData.news.length === 0) {
+    if (websiteData.news.length === 0) {
         gridElement.innerHTML = '<p>No news available at the moment.</p>';
         return;
     }
@@ -612,8 +563,8 @@ function updateGalleryPage() {
     
     gridElement.innerHTML = '';
     
-    if (!websiteData.gallery || websiteData.gallery.length === 0) {
-        gridElement.innerHTML = '<p>No gallery items available. Please check back later.</p>';
+    if (websiteData.gallery.length === 0) {
+        gridElement.innerHTML = '<p>No gallery items available. Add some in the admin panel.</p>';
         return;
     }
     
@@ -625,6 +576,7 @@ function updateGalleryPage() {
         galleryItem.innerHTML = `
             <div class="gallery-overlay">
                 <h4>${item.title}</h4>
+                <small>${item.category}</small>
             </div>
         `;
         gridElement.appendChild(galleryItem);
@@ -639,7 +591,6 @@ function formatDate(dateString) {
 
 // Loading indicator functions
 function showLoading(message = 'Loading...') {
-    // Remove existing loading indicator
     hideLoading();
     
     const loadingDiv = document.createElement('div');
@@ -649,17 +600,19 @@ function showLoading(message = 'Loading...') {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.8);
+        background: rgba(0,0,0,0.9);
         color: white;
-        padding: 20px;
-        border-radius: 8px;
+        padding: 20px 30px;
+        border-radius: 10px;
         z-index: 10000;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 15px;
+        font-size: 16px;
+        font-weight: 500;
     `;
     loadingDiv.innerHTML = `
-        <div class="spinner"></div>
+        <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #57cc99; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;"></div>
         <span>${message}</span>
     `;
     
@@ -677,13 +630,40 @@ function hideLoading() {
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 8px;
+        color: white;
+        z-index: 10000;
+        font-weight: 500;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        max-width: 400px;
+    `;
+    
+    if (type === 'success') notification.style.background = '#38b000';
+    else if (type === 'error') notification.style.background = '#ff6b6b';
+    else if (type === 'warning') notification.style.background = '#ff9e00';
+    else notification.style.background = '#1a5f7a';
+    
     notification.textContent = message;
     document.body.appendChild(notification);
     
-    // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentNode) {
             notification.remove();
         }
-    }, 5000);
+    }, 4000);
 }
+
+// Add spinner animation to CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
