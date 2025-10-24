@@ -3,7 +3,14 @@ let websiteData = {
     destinations: [],
     gallery: [],
     news: [],
-    taglines: []
+    testimonials: [],
+    taglines: [],
+    stats: {
+        destinations: 0,
+        visitors: 0,
+        years: 0,
+        satisfaction: 0
+    }
 };
 
 // Admin credentials
@@ -12,153 +19,208 @@ const ADMIN_CREDENTIALS = {
     password: "uttarakhand2024"
 };
 
+// GitHub integration simulation
+const GITHUB_CONFIG = {
+    repo: "uttarakhand-travel-data",
+    branch: "main",
+    dataFolder: "data"
+};
+
 // Initialize the website
-document.addEventListener('DOMContentLoaded', async function() {
-    await initializeWebsite();
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    initializeTaglineRotation();
+    initializePageSpecificFunctions();
+    initializeStatsAnimation();
 });
 
-// Initialize website
-async function initializeWebsite() {
-    try {
-        showLoading('🚀 Starting Uttarakhand Hills Website...');
-        
-        // Load data
-        await loadData();
-        initializeTaglineRotation();
-        initializePageSpecificFunctions();
-        
-        hideLoading();
-        showNotification('🏔️ Welcome to Uttarakhand Hills!', 'success');
-        
-    } catch (error) {
-        console.error('Failed to initialize website:', error);
-        hideLoading();
-        
-        // Load default data as fallback
-        websiteData = githubService.getDefaultData();
-        updatePageContent();
-        initializeTaglineRotation();
-        initializePageSpecificFunctions();
-        
-        showNotification('📋 Using default data', 'info');
+// Load data from localStorage or initialize with default data
+function loadData() {
+    const savedData = localStorage.getItem('uttarakhandWebsiteData');
+    
+    if (savedData) {
+        websiteData = JSON.parse(savedData);
+    } else {
+        // Initialize with default data
+        initializeDefaultData();
     }
+    
+    // Update the display based on current page
+    updatePageContent();
 }
 
-// Load data from GitHub
-async function loadData() {
-    try {
-        showLoading('📥 Loading data from GitHub...');
-        websiteData = await githubService.loadAllData();
-        updatePageContent();
-        hideLoading();
-        
-    } catch (error) {
-        console.error('Failed to load data:', error);
-        hideLoading();
-        websiteData = githubService.getDefaultData();
-        updatePageContent();
-    }
-}
-
-// Save data and prepare for GitHub upload
-async function saveData(dataType = null) {
-    try {
-        showLoading('💾 Preparing data for GitHub...');
-        
-        if (dataType) {
-            await githubService.saveData(`data/${dataType}.json`, websiteData[dataType]);
-        } else {
-            await githubService.saveAllData(websiteData);
+// Initialize with default data
+function initializeDefaultData() {
+    websiteData = {
+        destinations: [
+            {
+                id: 1,
+                name: "Rishikesh",
+                description: "The Yoga Capital of the World, situated on the banks of the holy Ganges river. Known for its spiritual aura and adventure activities.",
+                image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                region: "Garhwal"
+            },
+            {
+                id: 2,
+                name: "Nainital",
+                description: "The Lake District of India, famous for its beautiful lakes and pleasant climate. A perfect hill station getaway.",
+                image: "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                region: "Kumaon"
+            },
+            {
+                id: 3,
+                name: "Mussoorie",
+                description: "Queen of the Hills, offering panoramic views of the Himalayan ranges. Ideal for nature lovers and honeymooners.",
+                image: "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                region: "Garhwal"
+            },
+            {
+                id: 4,
+                name: "Auli",
+                description: "Popular skiing destination with breathtaking views of Nanda Devi peak. A winter paradise for adventure seekers.",
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                region: "Garhwal"
+            }
+        ],
+        gallery: [
+            {
+                id: 1,
+                title: "Kedarnath Temple",
+                image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                category: "temples"
+            },
+            {
+                id: 2,
+                title: "Valley of Flowers",
+                image: "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                category: "hills"
+            },
+            {
+                id: 3,
+                title: "River Rafting in Rishikesh",
+                image: "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                category: "adventure"
+            },
+            {
+                id: 4,
+                title: "Jim Corbett National Park",
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                category: "wildlife"
+            },
+            {
+                id: 5,
+                title: "Traditional Uttarakhand Dance",
+                image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                category: "culture"
+            },
+            {
+                id: 6,
+                title: "Badrinath Temple",
+                image: "https://images.unsplash.com/photo-1564507592333-c60657eea523?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+                category: "temples"
+            }
+        ],
+        news: [
+            {
+                id: 1,
+                title: "Char Dham Yatra 2024 Begins",
+                content: "The sacred Char Dham Yatra has commenced with new safety measures in place for pilgrims. Special arrangements have been made for senior citizens.",
+                date: "2024-05-01"
+            },
+            {
+                id: 2,
+                title: "New Trekking Routes Opened in Uttarakhand",
+                content: "The state tourism department has opened 5 new trekking routes for adventure enthusiasts in the Kumaon region.",
+                date: "2024-04-25"
+            },
+            {
+                id: 3,
+                title: "Uttarakhand Tourism Wins National Award",
+                content: "Uttarakhand has been awarded the 'Best Adventure Tourism Destination' at the National Tourism Awards 2024.",
+                date: "2024-04-15"
+            }
+        ],
+        testimonials: [
+            {
+                id: 1,
+                name: "Priya Sharma",
+                location: "Mumbai",
+                content: "My trip to Uttarakhand was absolutely magical! The serene beauty of the hills and the warm hospitality made it an unforgettable experience.",
+                rating: 5
+            },
+            {
+                id: 2,
+                name: "Rajesh Kumar",
+                location: "Delhi",
+                content: "As an adventure enthusiast, Uttarakhand offered everything I was looking for - from trekking to river rafting. Highly recommended!",
+                rating: 4
+            },
+            {
+                id: 3,
+                name: "Anita Desai",
+                location: "Bangalore",
+                content: "The spiritual journey to the Char Dham temples was transformative. The natural beauty of Uttarakhand is simply breathtaking.",
+                rating: 5
+            }
+        ],
+        taglines: [
+            "Discover the Land of Gods - Uttarakhand",
+            "Experience Serenity in the Himalayan Abode",
+            "Your Gateway to Spiritual and Adventure Tourism",
+            "Explore the Unexplored Beauty of Devbhoomi",
+            "Where Nature Meets Spirituality - Uttarakhand",
+            "Journey to the Heart of the Himalayas"
+        ],
+        stats: {
+            destinations: 25,
+            visitors: 12500,
+            years: 8,
+            satisfaction: 98
         }
-        
-        hideLoading();
-        
-        // Show upload instructions
-        showUploadInstructions(dataType);
-        return true;
-        
-    } catch (error) {
-        console.error('Failed to save data:', error);
-        hideLoading();
-        showNotification('❌ Failed to prepare data for upload', 'error');
-        return false;
-    }
+    };
+    saveData();
 }
 
-// Show upload instructions to user
-function showUploadInstructions(dataType) {
-    const repoURL = githubService.getRepoURL();
-    const fileName = dataType ? `${dataType}.json` : 'all files';
+// Save data to localStorage and simulate GitHub save
+function saveData() {
+    localStorage.setItem('uttarakhandWebsiteData', JSON.stringify(websiteData));
     
-    const message = `
-        ✅ Data prepared successfully!
-        
-        📁 To upload to GitHub:
-        1. Go to: ${repoURL}
-        2. Click "Add file" → "Upload files"
-        3. Upload the downloaded JSON file(s)
-        4. Commit changes with message "Update ${fileName}"
-        5. Your changes will be live immediately!
-        
-        💡 The files have been downloaded to your computer.
-    `;
+    // Simulate GitHub save
+    console.log("Data saved to localStorage. In production, this would push to GitHub repository.");
+    simulateGitHubSave();
+}
+
+// Simulate GitHub data saving
+function simulateGitHubSave() {
+    // In a real implementation, this would use GitHub API
+    // For now, we'll just log the action
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] Data would be saved to GitHub: ${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.dataFolder}/`);
     
-    // Create modal with instructions
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        z-index: 10001;
-        max-width: 500px;
-        max-height: 80vh;
-        overflow-y: auto;
-    `;
+    // Create a JSON blob for export
+    const dataStr = JSON.stringify(websiteData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
     
-    modal.innerHTML = `
-        <h3 style="color: #1a5f7a; margin-bottom: 20px;">📤 Upload to GitHub</h3>
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; line-height: 1.5; white-space: pre-line;">
-            ${message}
-        </div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-            <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Close
-            </button>
-            <button onclick="window.open('${repoURL}', '_blank'); this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #1a5f7a; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Open GitHub
-            </button>
-        </div>
-    `;
-    
-    // Add overlay
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 10000;
-    `;
-    
-    overlay.onclick = () => {
-        modal.remove();
-        overlay.remove();
-    };
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(modal);
+    // This would be the actual GitHub API call in production:
+    // fetch(`https://api.github.com/repos/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFolder}/data.json`, {
+    //     method: 'PUT',
+    //     headers: {
+    //         'Authorization': 'token YOUR_GITHUB_TOKEN',
+    //         'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify({
+    //         message: 'Auto-update website data',
+    //         content: btoa(dataStr),
+    //         branch: GITHUB_CONFIG.branch
+    //     })
+    // });
 }
 
 // Update tagline every 2 minutes
 function initializeTaglineRotation() {
-    updateTagline();
+    updateTagline(); // Initial update
+    
+    // Update every 2 minutes (120000 milliseconds)
     setInterval(updateTagline, 120000);
 }
 
@@ -169,6 +231,50 @@ function updateTagline() {
         const randomIndex = Math.floor(Math.random() * websiteData.taglines.length);
         taglineElement.textContent = websiteData.taglines[randomIndex];
     }
+}
+
+// Initialize stats animation
+function initializeStatsAnimation() {
+    // Only run on about page
+    if (window.location.pathname.includes('about.html')) {
+        animateStats();
+    }
+}
+
+// Animate statistics counters
+function animateStats() {
+    const stats = websiteData.stats;
+    
+    // Animate each counter
+    animateValue('destinations-count', 0, stats.destinations, 2000);
+    animateValue('visitors-count', 0, stats.visitors, 2000);
+    animateValue('years-count', 0, stats.years, 2000);
+    animateValue('satisfaction-count', 0, stats.satisfaction, 2000, true);
+}
+
+// Animate a value from start to end
+function animateValue(id, start, end, duration, isPercentage = false) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    
+    const range = end - start;
+    const increment = end > start ? 1 : -1;
+    const stepTime = Math.abs(Math.floor(duration / range));
+    let current = start;
+    
+    const timer = setInterval(function() {
+        current += increment;
+        element.innerHTML = isPercentage ? current + "%" : formatNumber(current);
+        
+        if (current === end) {
+            clearInterval(timer);
+        }
+    }, stepTime);
+}
+
+// Format numbers with commas
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 // Initialize page-specific functions
@@ -191,42 +297,20 @@ function initializePageSpecificFunctions() {
 
 // Home page functions
 function initializeHomePage() {
-    // Add GitHub repo info
-    addGitHubInfo();
-}
-
-// Add GitHub repository information
-function addGitHubInfo() {
-    const repoURL = githubService.getRepoURL();
-    const infoDiv = document.createElement('div');
-    infoDiv.style.cssText = `
-        text-align: center;
-        margin: 20px 0;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 5px;
-        font-size: 14px;
-    `;
-    infoDiv.innerHTML = `
-        <span>📁 Data loaded from: </span>
-        <a href="${repoURL}" target="_blank" style="color: #1a5f7a; text-decoration: none;">
-            GitHub Repository
-        </a>
-    `;
-    
-    const container = document.querySelector('.container');
-    if (container) {
-        container.appendChild(infoDiv);
-    }
+    // Nothing specific needed beyond what's in updatePageContent
 }
 
 // Gallery page functions
 function initializeGalleryPage() {
+    // Filter functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
+            // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
+            
+            // Filter gallery
             const filter = this.getAttribute('data-filter');
             filterGallery(filter);
         });
@@ -236,6 +320,7 @@ function initializeGalleryPage() {
 // Filter gallery items
 function filterGallery(category) {
     const galleryItems = document.querySelectorAll('.gallery-item');
+    
     galleryItems.forEach(item => {
         if (category === 'all' || item.getAttribute('data-category') === category) {
             item.style.display = 'block';
@@ -247,9 +332,6 @@ function filterGallery(category) {
 
 // Admin page functions
 function initializeAdminPage() {
-    // Add GitHub upload section
-    addGitHubUploadSection();
-    
     // Login form
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -262,10 +344,19 @@ function initializeAdminPage() {
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
                 loadAdminData();
-                showNotification('🔓 Admin access granted', 'success');
             } else {
-                showNotification('❌ Invalid credentials', 'error');
+                alert('Invalid credentials!');
             }
+        });
+    }
+    
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('login-form').reset();
         });
     }
     
@@ -273,8 +364,11 @@ function initializeAdminPage() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
+            // Update active tab button
             tabButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
+            
+            // Show corresponding tab content
             const tabId = this.getAttribute('data-tab') + '-tab';
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -283,56 +377,57 @@ function initializeAdminPage() {
         });
     });
     
-    // Form submissions
+    // Destination form
     const destinationForm = document.getElementById('destination-form');
-    if (destinationForm) destinationForm.addEventListener('submit', (e) => { e.preventDefault(); addDestination(); });
-    
-    const galleryForm = document.getElementById('gallery-form');
-    if (galleryForm) galleryForm.addEventListener('submit', (e) => { e.preventDefault(); addGalleryItem(); });
-    
-    const newsForm = document.getElementById('news-form');
-    if (newsForm) newsForm.addEventListener('submit', (e) => { e.preventDefault(); addNewsItem(); });
-    
-    const taglineForm = document.getElementById('tagline-form');
-    if (taglineForm) taglineForm.addEventListener('submit', (e) => { e.preventDefault(); addTagline(); });
-}
-
-// Add GitHub upload section to admin panel
-function addGitHubUploadSection() {
-    const adminDashboard = document.getElementById('admin-dashboard');
-    if (adminDashboard) {
-        const uploadSection = document.createElement('div');
-        uploadSection.className = 'upload-section';
-        uploadSection.style.cssText = `
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #1a5f7a;
-        `;
-        
-        uploadSection.innerHTML = `
-            <h3 style="color: #1a5f7a; margin-bottom: 15px;">📤 GitHub Upload</h3>
-            <p style="margin-bottom: 15px; color: #555;">
-                After making changes, upload the data files to GitHub to make them live on your website.
-            </p>
-            <button onclick="uploadAllToGitHub()" class="btn btn-primary" style="margin-right: 10px;">
-                <i class="fas fa-cloud-upload-alt"></i> Upload All to GitHub
-            </button>
-            <button onclick="showUploadInstructions()" class="btn" style="background: #6c757d; color: white;">
-                <i class="fas fa-question-circle"></i> Upload Guide
-            </button>
-        `;
-        
-        adminDashboard.insertBefore(uploadSection, adminDashboard.firstChild);
+    if (destinationForm) {
+        destinationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addDestination();
+        });
     }
-}
-
-// Upload all data to GitHub
-async function uploadAllToGitHub() {
-    const saved = await saveData();
-    if (saved) {
-        showNotification('✅ All data prepared for GitHub upload!', 'success');
+    
+    // Gallery form
+    const galleryForm = document.getElementById('gallery-form');
+    if (galleryForm) {
+        galleryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addGalleryItem();
+        });
+    }
+    
+    // News form
+    const newsForm = document.getElementById('news-form');
+    if (newsForm) {
+        newsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addNewsItem();
+        });
+    }
+    
+    // Testimonial form
+    const testimonialForm = document.getElementById('testimonial-form');
+    if (testimonialForm) {
+        testimonialForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addTestimonial();
+        });
+    }
+    
+    // Tagline form
+    const taglineForm = document.getElementById('tagline-form');
+    if (taglineForm) {
+        taglineForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addTagline();
+        });
+    }
+    
+    // Export button
+    const exportBtn = document.getElementById('export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            exportData();
+        });
     }
 }
 
@@ -341,23 +436,19 @@ function loadAdminData() {
     loadDestinationsList();
     loadGalleryList();
     loadNewsList();
+    loadTestimonialsList();
     loadTaglinesList();
 }
 
 // Add a new destination
-async function addDestination() {
+function addDestination() {
     const name = document.getElementById('dest-name').value;
     const description = document.getElementById('dest-description').value;
     const image = document.getElementById('dest-image').value;
     const region = document.getElementById('dest-region').value;
     
-    if (!name || !description || !image || !region) {
-        showNotification('❌ Please fill all fields', 'error');
-        return;
-    }
-    
     const newDestination = {
-        id: Date.now(),
+        id: Date.now(), // Simple ID generation
         name,
         description,
         image,
@@ -365,9 +456,11 @@ async function addDestination() {
     };
     
     websiteData.destinations.push(newDestination);
-    await saveData('destinations');
+    saveData();
     loadDestinationsList();
     document.getElementById('destination-form').reset();
+    
+    // Update the home page if we're on it
     updatePageContent();
 }
 
@@ -378,47 +471,35 @@ function loadDestinationsList() {
     
     listElement.innerHTML = '';
     
-    if (websiteData.destinations.length === 0) {
-        listElement.innerHTML = '<p>No destinations added yet.</p>';
-        return;
-    }
-    
     websiteData.destinations.forEach(destination => {
         const item = document.createElement('div');
         item.className = 'item-card';
         item.innerHTML = `
             <div>
                 <h4>${destination.name}</h4>
-                <p>${destination.region} - ${destination.description.substring(0, 50)}...</p>
+                <p>${destination.region} Region</p>
             </div>
-            <button class="delete-btn" onclick="deleteDestination(${destination.id})">
-                <i class="fas fa-trash"></i> Delete
-            </button>
+            <button class="delete-btn" onclick="deleteDestination(${destination.id})">Delete</button>
         `;
         listElement.appendChild(item);
     });
 }
 
 // Delete a destination
-async function deleteDestination(id) {
+function deleteDestination(id) {
     if (confirm('Are you sure you want to delete this destination?')) {
         websiteData.destinations = websiteData.destinations.filter(dest => dest.id !== id);
-        await saveData('destinations');
+        saveData();
         loadDestinationsList();
         updatePageContent();
     }
 }
 
 // Add a new gallery item
-async function addGalleryItem() {
+function addGalleryItem() {
     const title = document.getElementById('gallery-title').value;
     const image = document.getElementById('gallery-image').value;
     const category = document.getElementById('gallery-category').value;
-    
-    if (!title || !image || !category) {
-        showNotification('❌ Please fill all fields', 'error');
-        return;
-    }
     
     const newGalleryItem = {
         id: Date.now(),
@@ -428,9 +509,11 @@ async function addGalleryItem() {
     };
     
     websiteData.gallery.push(newGalleryItem);
-    await saveData('gallery');
+    saveData();
     loadGalleryList();
     document.getElementById('gallery-form').reset();
+    
+    // Update the gallery page if we're on it
     updatePageContent();
 }
 
@@ -441,11 +524,6 @@ function loadGalleryList() {
     
     listElement.innerHTML = '';
     
-    if (websiteData.gallery.length === 0) {
-        listElement.innerHTML = '<p>No gallery items added yet.</p>';
-        return;
-    }
-    
     websiteData.gallery.forEach(item => {
         const listItem = document.createElement('div');
         listItem.className = 'item-card';
@@ -454,34 +532,27 @@ function loadGalleryList() {
                 <h4>${item.title}</h4>
                 <p>Category: ${item.category}</p>
             </div>
-            <button class="delete-btn" onclick="deleteGalleryItem(${item.id})">
-                <i class="fas fa-trash"></i> Delete
-            </button>
+            <button class="delete-btn" onclick="deleteGalleryItem(${item.id})">Delete</button>
         `;
         listElement.appendChild(listItem);
     });
 }
 
 // Delete a gallery item
-async function deleteGalleryItem(id) {
+function deleteGalleryItem(id) {
     if (confirm('Are you sure you want to delete this gallery item?')) {
         websiteData.gallery = websiteData.gallery.filter(item => item.id !== id);
-        await saveData('gallery');
+        saveData();
         loadGalleryList();
         updatePageContent();
     }
 }
 
 // Add a news item
-async function addNewsItem() {
+function addNewsItem() {
     const title = document.getElementById('news-title').value;
     const content = document.getElementById('news-content').value;
     const date = document.getElementById('news-date').value;
-    
-    if (!title || !content || !date) {
-        showNotification('❌ Please fill all fields', 'error');
-        return;
-    }
     
     const newNewsItem = {
         id: Date.now(),
@@ -491,9 +562,11 @@ async function addNewsItem() {
     };
     
     websiteData.news.push(newNewsItem);
-    await saveData('news');
+    saveData();
     loadNewsList();
     document.getElementById('news-form').reset();
+    
+    // Update the home page if we're on it
     updatePageContent();
 }
 
@@ -504,50 +577,95 @@ function loadNewsList() {
     
     listElement.innerHTML = '';
     
-    if (websiteData.news.length === 0) {
-        listElement.innerHTML = '<p>No news items added yet.</p>';
-        return;
-    }
-    
     websiteData.news.forEach(item => {
         const listItem = document.createElement('div');
         listItem.className = 'item-card';
         listItem.innerHTML = `
             <div>
                 <h4>${item.title}</h4>
-                <p>Date: ${item.date}</p>
+                <p>Date: ${formatDisplayDate(item.date)}</p>
             </div>
-            <button class="delete-btn" onclick="deleteNewsItem(${item.id})">
-                <i class="fas fa-trash"></i> Delete
-            </button>
+            <button class="delete-btn" onclick="deleteNewsItem(${item.id})">Delete</button>
         `;
         listElement.appendChild(listItem);
     });
 }
 
 // Delete a news item
-async function deleteNewsItem(id) {
+function deleteNewsItem(id) {
     if (confirm('Are you sure you want to delete this news item?')) {
         websiteData.news = websiteData.news.filter(item => item.id !== id);
-        await saveData('news');
+        saveData();
         loadNewsList();
         updatePageContent();
     }
 }
 
+// Add a testimonial
+function addTestimonial() {
+    const name = document.getElementById('testimonial-name').value;
+    const location = document.getElementById('testimonial-location').value;
+    const content = document.getElementById('testimonial-content').value;
+    const rating = parseInt(document.getElementById('testimonial-rating').value);
+    
+    const newTestimonial = {
+        id: Date.now(),
+        name,
+        location,
+        content,
+        rating
+    };
+    
+    websiteData.testimonials.push(newTestimonial);
+    saveData();
+    loadTestimonialsList();
+    document.getElementById('testimonial-form').reset();
+    
+    // Update the home page if we're on it
+    updatePageContent();
+}
+
+// Load testimonials in admin panel
+function loadTestimonialsList() {
+    const listElement = document.getElementById('testimonials-list');
+    if (!listElement) return;
+    
+    listElement.innerHTML = '';
+    
+    websiteData.testimonials.forEach(item => {
+        const listItem = document.createElement('div');
+        listItem.className = 'item-card';
+        listItem.innerHTML = `
+            <div>
+                <h4>${item.name}</h4>
+                <p>${item.location} | Rating: ${'★'.repeat(item.rating)}${'☆'.repeat(5-item.rating)}</p>
+            </div>
+            <button class="delete-btn" onclick="deleteTestimonial(${item.id})">Delete</button>
+        `;
+        listElement.appendChild(listItem);
+    });
+}
+
+// Delete a testimonial
+function deleteTestimonial(id) {
+    if (confirm('Are you sure you want to delete this testimonial?')) {
+        websiteData.testimonials = websiteData.testimonials.filter(item => item.id !== id);
+        saveData();
+        loadTestimonialsList();
+        updatePageContent();
+    }
+}
+
 // Add a tagline
-async function addTagline() {
+function addTagline() {
     const tagline = document.getElementById('new-tagline').value;
     
-    if (!tagline) {
-        showNotification('❌ Please enter a tagline', 'error');
-        return;
-    }
-    
     websiteData.taglines.push(tagline);
-    await saveData('taglines');
+    saveData();
     loadTaglinesList();
     document.getElementById('tagline-form').reset();
+    
+    // The tagline rotation will pick up the new tagline automatically
 }
 
 // Load taglines in admin panel
@@ -557,11 +675,6 @@ function loadTaglinesList() {
     
     listElement.innerHTML = '';
     
-    if (websiteData.taglines.length === 0) {
-        listElement.innerHTML = '<p>No taglines added yet.</p>';
-        return;
-    }
-    
     websiteData.taglines.forEach((tagline, index) => {
         const listItem = document.createElement('div');
         listItem.className = 'item-card';
@@ -569,20 +682,42 @@ function loadTaglinesList() {
             <div>
                 <p>"${tagline}"</p>
             </div>
-            <button class="delete-btn" onclick="deleteTagline(${index})">
-                <i class="fas fa-trash"></i> Delete
-            </button>
+            <button class="delete-btn" onclick="deleteTagline(${index})">Delete</button>
         `;
         listElement.appendChild(listItem);
     });
 }
 
 // Delete a tagline
-async function deleteTagline(index) {
+function deleteTagline(index) {
     if (confirm('Are you sure you want to delete this tagline?')) {
         websiteData.taglines.splice(index, 1);
-        await saveData('taglines');
+        saveData();
         loadTaglinesList();
+    }
+}
+
+// Export data as JSON file
+function exportData() {
+    const dataStr = JSON.stringify(websiteData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'uttarakhand-website-data.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Show success message
+    const exportResult = document.getElementById('export-result');
+    if (exportResult) {
+        exportResult.innerHTML = `
+            <p><strong>Success!</strong> Data exported as JSON file.</p>
+            <p>File: uttarakhand-website-data.json</p>
+            <p>You can now commit this file to your GitHub repository.</p>
+        `;
     }
 }
 
@@ -605,6 +740,7 @@ function updatePageContent() {
 function updateHomePage() {
     updateDestinations();
     updateNews();
+    updateTestimonials();
 }
 
 // Update destinations on home page
@@ -613,11 +749,6 @@ function updateDestinations() {
     if (!gridElement) return;
     
     gridElement.innerHTML = '';
-    
-    if (websiteData.destinations.length === 0) {
-        gridElement.innerHTML = '<p>No destinations available. Add some in the admin panel.</p>';
-        return;
-    }
     
     websiteData.destinations.forEach(destination => {
         const card = document.createElement('div');
@@ -641,19 +772,42 @@ function updateNews() {
     
     gridElement.innerHTML = '';
     
-    if (websiteData.news.length === 0) {
-        gridElement.innerHTML = '<p>No news available at the moment.</p>';
-        return;
-    }
-    
     websiteData.news.forEach(newsItem => {
         const card = document.createElement('div');
         card.className = 'news-card';
         card.innerHTML = `
             <div class="news-content">
                 <h3>${newsItem.title}</h3>
-                <div class="news-date">${formatDate(newsItem.date)}</div>
+                <div class="news-date"><i class="fas fa-calendar-alt"></i> ${formatDisplayDate(newsItem.date)}</div>
                 <p>${newsItem.content}</p>
+            </div>
+        `;
+        gridElement.appendChild(card);
+    });
+}
+
+// Update testimonials on home page
+function updateTestimonials() {
+    const gridElement = document.getElementById('testimonials-grid');
+    if (!gridElement) return;
+    
+    gridElement.innerHTML = '';
+    
+    websiteData.testimonials.forEach(testimonial => {
+        const card = document.createElement('div');
+        card.className = 'testimonial-card';
+        card.innerHTML = `
+            <div class="testimonial-content">
+                <p>${testimonial.content}</p>
+            </div>
+            <div class="testimonial-author">
+                <div class="author-info">
+                    <h4>${testimonial.name}</h4>
+                    <div class="author-location">${testimonial.location}</div>
+                </div>
+                <div class="testimonial-rating">
+                    ${'★'.repeat(testimonial.rating)}${'☆'.repeat(5-testimonial.rating)}
+                </div>
             </div>
         `;
         gridElement.appendChild(card);
@@ -667,11 +821,6 @@ function updateGalleryPage() {
     
     gridElement.innerHTML = '';
     
-    if (websiteData.gallery.length === 0) {
-        gridElement.innerHTML = '<p>No gallery items available. Add some in the admin panel.</p>';
-        return;
-    }
-    
     websiteData.gallery.forEach(item => {
         const galleryItem = document.createElement('div');
         galleryItem.className = 'gallery-item';
@@ -680,94 +829,14 @@ function updateGalleryPage() {
         galleryItem.innerHTML = `
             <div class="gallery-overlay">
                 <h4>${item.title}</h4>
-                <small>${item.category}</small>
             </div>
         `;
         gridElement.appendChild(galleryItem);
     });
 }
 
-// Utility function to format dates
-function formatDate(dateString) {
+// Utility function to format dates for display
+function formatDisplayDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
-
-// Loading indicator functions
-function showLoading(message = 'Loading...') {
-    hideLoading();
-    
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'loading-indicator';
-    loadingDiv.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.9);
-        color: white;
-        padding: 20px 30px;
-        border-radius: 10px;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        font-size: 16px;
-        font-weight: 500;
-    `;
-    loadingDiv.innerHTML = `
-        <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #57cc99; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;"></div>
-        <span>${message}</span>
-    `;
-    
-    document.body.appendChild(loadingDiv);
-}
-
-function hideLoading() {
-    const loadingIndicator = document.getElementById('loading-indicator');
-    if (loadingIndicator) {
-        loadingIndicator.remove();
-    }
-}
-
-// Notification function
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        border-radius: 8px;
-        color: white;
-        z-index: 10000;
-        font-weight: 500;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        max-width: 400px;
-    `;
-    
-    if (type === 'success') notification.style.background = '#38b000';
-    else if (type === 'error') notification.style.background = '#ff6b6b';
-    else if (type === 'warning') notification.style.background = '#ff9e00';
-    else notification.style.background = '#1a5f7a';
-    
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 4000);
-}
-
-// Add spinner animation to CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);
