@@ -92,6 +92,7 @@ header {
     font-style: italic;
     color: var(--dark);
     font-weight: 500;
+    min-height: 24px;
 }
 
 .main-nav {
@@ -476,27 +477,7 @@ footer {
     color: #ddd;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .about-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .hero h2, .page-hero h1 {
-        font-size: 2rem;
-    }
-    
-    .admin-tabs {
-        flex-wrap: wrap;
-    }
-
-}
-/* Add to existing styles.css */
+/* Loading and Notification Styles */
 .loading-indicator {
     position: fixed;
     top: 0;
@@ -548,4 +529,28 @@ footer {
 
 .notification.info {
     background: var(--primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero h2, .page-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .admin-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tagline {
+        text-align: center;
+    }
 }
