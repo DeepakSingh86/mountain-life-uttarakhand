@@ -5,7 +5,7 @@ class GitHubService {
             username: 'DeepakSingh86',
             repo: 'mountain-life-uttarakhand',
             branch: 'main',
-            token: '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'
+            token: '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'
         };
         this.baseURL = 'https://api.github.com';
     }
@@ -205,3 +205,4 @@ class GitHubService {
 
 // Create global instance
 const githubService = new GitHubService();
+
