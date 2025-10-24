@@ -9,41 +9,88 @@ let websiteData = {
 // Admin credentials
 const ADMIN_CREDENTIALS = {
     username: "admin",
-    password: "1"
+    password: "uttarakhand2024"
 };
+
+// GitHub connection status
+let githubConnected = false;
 
 // Initialize the website
 document.addEventListener('DOMContentLoaded', async function() {
-    await loadData();
-    initializeTaglineRotation();
-    initializePageSpecificFunctions();
+    await initializeWebsite();
 });
 
-// Load data from GitHub
+// Initialize website
+async function initializeWebsite() {
+    try {
+        showLoading('Initializing website...');
+        
+        // Initialize GitHub connection
+        githubConnected = await githubService.initialize();
+        
+        if (githubConnected) {
+            showNotification('Connected to GitHub successfully!', 'success');
+        } else {
+            showNotification('Using local data mode. GitHub connection failed.', 'warning');
+        }
+        
+        // Load data
+        await loadData();
+        initializeTaglineRotation();
+        initializePageSpecificFunctions();
+        
+        hideLoading();
+    } catch (error) {
+        console.error('Failed to initialize website:', error);
+        hideLoading();
+        showNotification('Website initialized with default data', 'info');
+        
+        // Load default data as fallback
+        websiteData = githubService.getDefaultData();
+        updatePageContent();
+        initializeTaglineRotation();
+        initializePageSpecificFunctions();
+    }
+}
+
+// Load data from GitHub or use default
 async function loadData() {
     try {
-        showLoading('Loading data from GitHub...');
-        websiteData = await githubService.loadAllData();
+        showLoading('Loading data...');
+        
+        if (githubConnected) {
+            websiteData = await githubService.loadAllData();
+            console.log('Data loaded from GitHub:', websiteData);
+        } else {
+            websiteData = githubService.getDefaultData();
+            console.log('Using default data:', websiteData);
+        }
+        
         updatePageContent();
         hideLoading();
     } catch (error) {
         console.error('Failed to load data:', error);
         hideLoading();
+        
         // Fallback to default data
         websiteData = githubService.getDefaultData();
         updatePageContent();
+        showNotification('Loaded default data due to connection issues', 'warning');
     }
 }
 
 // Save data to GitHub
 async function saveData(dataType = null) {
     try {
+        if (!githubConnected) {
+            throw new Error('Not connected to GitHub. Please check your token and connection.');
+        }
+
         showLoading('Saving data to GitHub...');
         
         if (dataType) {
             // Save specific data type
-            const filePath = `data/${dataType}.json`;
-            await githubService.writeData(filePath, websiteData[dataType], `Update ${dataType}`);
+            await githubService.writeData(`data/${dataType}.json`, websiteData[dataType]);
         } else {
             // Save all data
             await githubService.saveAllData(websiteData);
@@ -51,10 +98,12 @@ async function saveData(dataType = null) {
         
         hideLoading();
         showNotification('Data saved successfully to GitHub!', 'success');
+        return true;
     } catch (error) {
         console.error('Failed to save data:', error);
         hideLoading();
-        showNotification('Failed to save data to GitHub. Please try again.', 'error');
+        showNotification(`Failed to save data: ${error.message}`, 'error');
+        return false;
     }
 }
 
@@ -69,9 +118,11 @@ function initializeTaglineRotation() {
 // Update the tagline display
 function updateTagline() {
     const taglineElement = document.getElementById('tagline');
-    if (taglineElement && websiteData.taglines.length > 0) {
+    if (taglineElement && websiteData.taglines && websiteData.taglines.length > 0) {
         const randomIndex = Math.floor(Math.random() * websiteData.taglines.length);
         taglineElement.textContent = websiteData.taglines[randomIndex];
+    } else if (taglineElement) {
+        taglineElement.textContent = "Discover the Land of Gods - Uttarakhand";
     }
 }
 
@@ -95,7 +146,18 @@ function initializePageSpecificFunctions() {
 
 // Home page functions
 function initializeHomePage() {
-    // Nothing specific needed beyond what's in updatePageContent
+    // Update GitHub status display
+    updateGitHubStatus();
+}
+
+// Update GitHub connection status display
+function updateGitHubStatus() {
+    const statusElement = document.getElementById('github-status');
+    if (statusElement) {
+        statusElement.innerHTML = githubConnected ? 
+            '<span style="color: var(--success)"><i class="fas fa-check-circle"></i> Connected to GitHub</span>' :
+            '<span style="color: var(--accent)"><i class="fas fa-exclamation-triangle"></i> Local Mode</span>';
+    }
 }
 
 // Gallery page functions
@@ -130,6 +192,9 @@ function filterGallery(category) {
 
 // Admin page functions
 function initializeAdminPage() {
+    // Update GitHub status in admin
+    updateGitHubStatus();
+    
     // Login form
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -143,7 +208,7 @@ function initializeAdminPage() {
                 document.getElementById('admin-dashboard').style.display = 'block';
                 loadAdminData();
             } else {
-                alert('Invalid credentials!');
+                showNotification('Invalid credentials!', 'error');
             }
         });
     }
@@ -217,6 +282,11 @@ async function addDestination() {
     const image = document.getElementById('dest-image').value;
     const region = document.getElementById('dest-region').value;
     
+    if (!name || !description || !image || !region) {
+        showNotification('Please fill all fields', 'error');
+        return;
+    }
+    
     const newDestination = {
         id: Date.now(), // Simple ID generation
         name,
@@ -226,12 +296,14 @@ async function addDestination() {
     };
     
     websiteData.destinations.push(newDestination);
-    await saveData('destinations');
-    loadDestinationsList();
-    document.getElementById('destination-form').reset();
     
-    // Update the home page if we're on it
-    updatePageContent();
+    const saved = await saveData('destinations');
+    if (saved) {
+        loadDestinationsList();
+        document.getElementById('destination-form').reset();
+        // Update the home page if we're on it
+        updatePageContent();
+    }
 }
 
 // Load destinations in admin panel
@@ -241,13 +313,18 @@ function loadDestinationsList() {
     
     listElement.innerHTML = '';
     
+    if (!websiteData.destinations || websiteData.destinations.length === 0) {
+        listElement.innerHTML = '<p>No destinations added yet.</p>';
+        return;
+    }
+    
     websiteData.destinations.forEach(destination => {
         const item = document.createElement('div');
         item.className = 'item-card';
         item.innerHTML = `
             <div>
                 <h4>${destination.name}</h4>
-                <p>${destination.region}</p>
+                <p>${destination.region} - ${destination.description.substring(0, 50)}...</p>
             </div>
             <button class="delete-btn" onclick="deleteDestination(${destination.id})">Delete</button>
         `;
@@ -259,9 +336,11 @@ function loadDestinationsList() {
 async function deleteDestination(id) {
     if (confirm('Are you sure you want to delete this destination?')) {
         websiteData.destinations = websiteData.destinations.filter(dest => dest.id !== id);
-        await saveData('destinations');
-        loadDestinationsList();
-        updatePageContent();
+        const saved = await saveData('destinations');
+        if (saved) {
+            loadDestinationsList();
+            updatePageContent();
+        }
     }
 }
 
@@ -271,6 +350,11 @@ async function addGalleryItem() {
     const image = document.getElementById('gallery-image').value;
     const category = document.getElementById('gallery-category').value;
     
+    if (!title || !image || !category) {
+        showNotification('Please fill all fields', 'error');
+        return;
+    }
+    
     const newGalleryItem = {
         id: Date.now(),
         title,
@@ -279,12 +363,14 @@ async function addGalleryItem() {
     };
     
     websiteData.gallery.push(newGalleryItem);
-    await saveData('gallery');
-    loadGalleryList();
-    document.getElementById('gallery-form').reset();
     
-    // Update the gallery page if we're on it
-    updatePageContent();
+    const saved = await saveData('gallery');
+    if (saved) {
+        loadGalleryList();
+        document.getElementById('gallery-form').reset();
+        // Update the gallery page if we're on it
+        updatePageContent();
+    }
 }
 
 // Load gallery items in admin panel
@@ -293,6 +379,11 @@ function loadGalleryList() {
     if (!listElement) return;
     
     listElement.innerHTML = '';
+    
+    if (!websiteData.gallery || websiteData.gallery.length === 0) {
+        listElement.innerHTML = '<p>No gallery items added yet.</p>';
+        return;
+    }
     
     websiteData.gallery.forEach(item => {
         const listItem = document.createElement('div');
@@ -312,9 +403,11 @@ function loadGalleryList() {
 async function deleteGalleryItem(id) {
     if (confirm('Are you sure you want to delete this gallery item?')) {
         websiteData.gallery = websiteData.gallery.filter(item => item.id !== id);
-        await saveData('gallery');
-        loadGalleryList();
-        updatePageContent();
+        const saved = await saveData('gallery');
+        if (saved) {
+            loadGalleryList();
+            updatePageContent();
+        }
     }
 }
 
@@ -324,6 +417,11 @@ async function addNewsItem() {
     const content = document.getElementById('news-content').value;
     const date = document.getElementById('news-date').value;
     
+    if (!title || !content || !date) {
+        showNotification('Please fill all fields', 'error');
+        return;
+    }
+    
     const newNewsItem = {
         id: Date.now(),
         title,
@@ -332,12 +430,14 @@ async function addNewsItem() {
     };
     
     websiteData.news.push(newNewsItem);
-    await saveData('news');
-    loadNewsList();
-    document.getElementById('news-form').reset();
     
-    // Update the home page if we're on it
-    updatePageContent();
+    const saved = await saveData('news');
+    if (saved) {
+        loadNewsList();
+        document.getElementById('news-form').reset();
+        // Update the home page if we're on it
+        updatePageContent();
+    }
 }
 
 // Load news items in admin panel
@@ -346,6 +446,11 @@ function loadNewsList() {
     if (!listElement) return;
     
     listElement.innerHTML = '';
+    
+    if (!websiteData.news || websiteData.news.length === 0) {
+        listElement.innerHTML = '<p>No news items added yet.</p>';
+        return;
+    }
     
     websiteData.news.forEach(item => {
         const listItem = document.createElement('div');
@@ -365,9 +470,11 @@ function loadNewsList() {
 async function deleteNewsItem(id) {
     if (confirm('Are you sure you want to delete this news item?')) {
         websiteData.news = websiteData.news.filter(item => item.id !== id);
-        await saveData('news');
-        loadNewsList();
-        updatePageContent();
+        const saved = await saveData('news');
+        if (saved) {
+            loadNewsList();
+            updatePageContent();
+        }
     }
 }
 
@@ -375,12 +482,19 @@ async function deleteNewsItem(id) {
 async function addTagline() {
     const tagline = document.getElementById('new-tagline').value;
     
-    websiteData.taglines.push(tagline);
-    await saveData('taglines');
-    loadTaglinesList();
-    document.getElementById('tagline-form').reset();
+    if (!tagline) {
+        showNotification('Please enter a tagline', 'error');
+        return;
+    }
     
-    // The tagline rotation will pick up the new tagline automatically
+    websiteData.taglines.push(tagline);
+    
+    const saved = await saveData('taglines');
+    if (saved) {
+        loadTaglinesList();
+        document.getElementById('tagline-form').reset();
+        // The tagline rotation will pick up the new tagline automatically
+    }
 }
 
 // Load taglines in admin panel
@@ -389,6 +503,11 @@ function loadTaglinesList() {
     if (!listElement) return;
     
     listElement.innerHTML = '';
+    
+    if (!websiteData.taglines || websiteData.taglines.length === 0) {
+        listElement.innerHTML = '<p>No taglines added yet.</p>';
+        return;
+    }
     
     websiteData.taglines.forEach((tagline, index) => {
         const listItem = document.createElement('div');
@@ -440,6 +559,11 @@ function updateDestinations() {
     
     gridElement.innerHTML = '';
     
+    if (!websiteData.destinations || websiteData.destinations.length === 0) {
+        gridElement.innerHTML = '<p>No destinations available. Please check back later.</p>';
+        return;
+    }
+    
     websiteData.destinations.forEach(destination => {
         const card = document.createElement('div');
         card.className = 'destination-card';
@@ -462,6 +586,11 @@ function updateNews() {
     
     gridElement.innerHTML = '';
     
+    if (!websiteData.news || websiteData.news.length === 0) {
+        gridElement.innerHTML = '<p>No news available at the moment.</p>';
+        return;
+    }
+    
     websiteData.news.forEach(newsItem => {
         const card = document.createElement('div');
         card.className = 'news-card';
@@ -482,6 +611,11 @@ function updateGalleryPage() {
     if (!gridElement) return;
     
     gridElement.innerHTML = '';
+    
+    if (!websiteData.gallery || websiteData.gallery.length === 0) {
+        gridElement.innerHTML = '<p>No gallery items available. Please check back later.</p>';
+        return;
+    }
     
     websiteData.gallery.forEach(item => {
         const galleryItem = document.createElement('div');
@@ -546,9 +680,10 @@ function showNotification(message, type = 'info') {
     notification.textContent = message;
     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
+    // Auto remove after 5 seconds
     setTimeout(() => {
-        notification.remove();
-    }, 3000);
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
 }
-
