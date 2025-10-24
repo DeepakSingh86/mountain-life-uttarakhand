@@ -19,5 +19,12 @@
     "description": "Famous for its scenic beauty, colonial architecture, and panoramic views of the Himalayan ranges.",
     "image": "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
     "region": "Garhwal"
+  },
+  {
+    "id": 1761305707959,
+    "name": "Uttarakhand091",
+    "description": "india",
+    "image": "https://images.pexels.com/photos/30682623/pexels-photo-30682623.jpeg",
+    "region": "Garhwal"
   }
 ]
