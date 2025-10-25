@@ -183,78 +183,6 @@ class GitHubService {
     }
 
     // Get default data structure
-    getDefaultData() {
-        return {
-            destinations: [
-                {
-                    id: 1,
-                    name: "Rishikesh - Yoga Capital",
-                    description: "The Yoga Capital of the World, situated on the banks of the holy Ganges river. Known for spiritual retreats and adventure sports.",
-                    image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    region: "Garhwal"
-                },
-                {
-                    id: 2,
-                    name: "Nainital - Lake District",
-                    description: "The Lake District of India, famous for its beautiful Naini Lake and pleasant climate throughout the year.",
-                    image: "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    region: "Kumaon"
-                },
-                {
-                    id: 3,
-                    name: "Mussoorie - Queen of Hills",
-                    description: "Famous for its scenic beauty, colonial architecture, and panoramic views of the Himalayan ranges.",
-                    image: "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    region: "Garhwal"
-                }
-            ],
-            gallery: [
-                {
-                    id: 1,
-                    title: "Kedarnath Temple",
-                    image: "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    category: "temples"
-                },
-                {
-                    id: 2,
-                    title: "Valley of Flowers",
-                    image: "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    category: "hills"
-                },
-                {
-                    id: 3,
-                    title: "River Rafting",
-                    image: "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-                    category: "adventure"
-                }
-            ],
-            news: [
-                {
-                    id: 1,
-                    title: "Char Dham Yatra 2024 Season Begins",
-                    content: "The sacred Char Dham Yatra pilgrimage has officially started with enhanced facilities and safety measures for all devotees.",
-                    date: "2024-05-01"
-                },
-                {
-                    id: 2,
-                    title: "New Adventure Sports Launched",
-                    content: "Experience thrilling new adventure activities including paragliding and rock climbing in various hill stations.",
-                    date: "2024-04-25"
-                }
-            ],
-            taglines: this.getDefaultTaglines()
-        };
-    }
-
-    getDefaultTaglines() {
-        return [
-            "Discover the Land of Gods - Uttarakhand",
-            "Experience Serenity in the Himalayan Abode",
-            "Your Gateway to Spiritual and Adventure Tourism",
-            "Explore the Unexplored Beauty of Devbhoomi",
-            "Where Mountains Meet Heaven - Uttarakhand Awaits"
-        ];
-    }
 
     // Get GitHub repository URL for manual upload
     getRepoURL() {
@@ -270,3 +198,4 @@ class GitHubService {
 
 // Create global instance
 const githubService = new GitHubService();
+
