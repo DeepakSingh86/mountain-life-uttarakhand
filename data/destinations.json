@@ -1,12 +1,5 @@
 [
   {
-    "id": 2,
-    "name": "Nainital",
-    "description": "The Lake District of India, famous for its beautiful lakes and pleasant climate.",
-    "image": "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-    "region": "Kumaon"
-  },
-  {
     "id": 3,
     "name": "Mussoorie",
     "description": "Queen of the Hills, offering panoramic views of the Himalayan ranges.",
