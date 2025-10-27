@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Rishikesh",
+    "description": "The Yoga Capital of the World, situated on the banks of the holy Ganges river.",
+    "image": "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+    "region": "Garhwal"
+  },
+  {
+    "id": 2,
+    "name": "Nainital",
+    "description": "The Lake District of India, famous for its beautiful lakes and pleasant climate.",
+    "image": "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+    "region": "Kumaon"
+  },
+  {
+    "id": 3,
+    "name": "Mussoorie",
+    "description": "Queen of the Hills, offering panoramic views of the Himalayan ranges.",
+    "image": "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+    "region": "Garhwal"
+  },
+  {
+    "id": 1761294820083,
+    "name": "Delhi ",
+    "description": "for the more time of travel area in the word",
+    "image": "https://images.pexels.com/photos/34284792/pexels-photo-34284792.jpeg",
+    "region": "kumaon"
+  },
+  {
+    "id": 1761544681400,
+    "name": "test 122",
+    "description": "sdsdfsdafsadfsd",
+    "image": "https://images.pexels.com/photos/1583244/pexels-photo-1583244.jpeg",
+    "region": "Garhwal"
+  }
+]
