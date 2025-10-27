@@ -13,11 +13,11 @@ let websiteData = {
     }
 };
 
-// Admin credentials
-const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "uttarakhand2024"
-};
+// // Admin credentials
+// const ADMIN_CREDENTIALS = {
+    // username: "admin",
+    // password: "uttarakhand2024"
+// };
 
 // GitHub integration simulation
 const GITHUB_CONFIG = {
@@ -39,26 +39,19 @@ document.addEventListener('DOMContentLoaded', function() {
 // Sections = each corresponds to a JSON file
 const FILES = ["destinations", "gallery", "news", "testimonials", "taglines"];
 
-// Load JSON data from GitHub
 async function loadData() {
   for (const name of FILES) {
-    const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFolder}/${name}.json?ref=${GITHUB_CONFIG.branch}`;
-    
+    // Use raw.githubusercontent.com (no auth required)
+    const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.dataFolder}/${name}.json`;
+
     try {
-      const res = await fetch(url, {
-        headers: {
-          "Accept": "application/vnd.github.v3+json",
-          "Authorization": `token ${GITHUB_CONFIG.token}`
-        }
-      });
+      const res = await fetch(url);
 
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
-      const file = await res.json();
-      const json = JSON.parse(atob(file.content.replace(/\n/g, "")));
-
+      const json = await res.json();
       websiteData[name] = json;
-     // console.log(`✅ Loaded ${name}.json`);
+      //console.log(`✅ Loaded ${name}.json`);
     } 
     catch (err) {
       console.error(`❌ Failed to load ${name}.json:`, err.message);
@@ -68,6 +61,37 @@ async function loadData() {
 
   if (typeof updatePageContent === "function") updatePageContent();
 }
+
+
+// // Load JSON data from GitHub
+// async function loadData() {
+  // for (const name of FILES) {
+    // const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFolder}/${name}.json?ref=${GITHUB_CONFIG.branch}`;
+    
+    // try {
+      // const res = await fetch(url, {
+        // headers: {
+          // "Accept": "application/vnd.github.v3+json",
+          // "Authorization": `token ${GITHUB_CONFIG.token}`
+        // }
+      // });
+
+      // if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
+      // const file = await res.json();
+      // const json = JSON.parse(atob(file.content.replace(/\n/g, "")));
+
+      // websiteData[name] = json;
+     // // console.log(`✅ Loaded ${name}.json`);
+    // } 
+    // catch (err) {
+      // console.error(`❌ Failed to load ${name}.json:`, err.message);
+      // websiteData[name] = [];
+    // }
+  // }
+
+  // if (typeof updatePageContent === "function") updatePageContent();
+// }
 
 // // Load data from localStorage or initialize with default data
 // function loadData() {
@@ -290,9 +314,6 @@ function initializePageSpecificFunctions() {
         case 'gallery.html':
             initializeGalleryPage();
             break;
-        case 'admin.html':
-            initializeAdminPage();
-            break;
     }
 }
 
@@ -334,23 +355,25 @@ function filterGallery(category) {
 // Admin page functions
 function initializeAdminPage() {
     // Login form
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+    // const loginForm = document.getElementById('login-form');
+    // if (loginForm) {
+        // loginForm.addEventListener('submit', function(e) {
+            // e.preventDefault();
+            // const username = document.getElementById('username').value;
+            // const password = document.getElementById('password').value;
             
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('admin-dashboard').style.display = 'block';
-                loadAdminData();
-            } else {
-                alert('Invalid credentials!');
-            }
-        });
-    }
-    
+            // if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                // document.getElementById('login-section').style.display = 'none';
+                // document.getElementById('admin-dashboard').style.display = 'block';
+                // loadAdminData();
+            // } else {
+                // alert('Invalid credentials!');
+            // }
+        // });
+    // }
+	 document.getElementById('login-section').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    loadAdminData();
     // Logout button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
@@ -427,7 +450,8 @@ function initializeAdminPage() {
     const exportBtn = document.getElementById('export-btn');
     if (exportBtn) {
         exportBtn.addEventListener('click', function() {
-            exportData();
+			exportAllSections();
+           // exportData();
         });
     }
 }
@@ -722,6 +746,30 @@ function exportData() {
     }
 }
 
+function exportAllSections() {
+  for (const name of FILES) {
+    const data = websiteData[name] ?? [];
+    downloadJSON(`${name}.json`, data);
+  }
+
+  const el = document.getElementById("export-result");
+  if (el) el.innerHTML = `<p>✅ Exported ${FILES.length} files: ${FILES.join(", ")}</p>`;
+}
+
+
+function downloadJSON(filename, obj) {
+  const dataStr = JSON.stringify(obj, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 // Update page content based on current page
 function updatePageContent() {
     const currentPage = window.location.pathname.split('/').pop();
@@ -841,5 +889,9 @@ function formatDisplayDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
+
+
+
+
 
 
