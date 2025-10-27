@@ -21,7 +21,8 @@ const ADMIN_CREDENTIALS = {
 
 // GitHub integration simulation
 const GITHUB_CONFIG = {
-    repo: "uttarakhand-travel-data",
+    username: 'DeepakSingh86',
+    repo: 'mountain-life-uttarakhand',
     branch: "main",
     dataFolder: "data",
     token: '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'
@@ -762,6 +763,7 @@ function formatDisplayDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
+
 
 
 
