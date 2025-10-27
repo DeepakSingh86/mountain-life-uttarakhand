@@ -25,7 +25,7 @@ const GITHUB_CONFIG = {
     repo: 'mountain-life-uttarakhand',
     branch: "main",
     dataFolder: "data",
-    token: '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'
+    token: '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'
 };
 
 // Initialize the website
@@ -841,4 +841,5 @@ function formatDisplayDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
+
 
