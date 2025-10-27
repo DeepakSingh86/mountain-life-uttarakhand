@@ -22,8 +22,8 @@ A comprehensive travel website for Uttarakhand hills with admin panel and dynami
 
 ## Admin Access
 
-- Username: `admin`
-- Password: `uttarakhand2024`
+- Username: `-----`
+- Password: `------`
 
 ## Setup
 
@@ -36,5 +36,6 @@ A comprehensive travel website for Uttarakhand hills with admin panel and dynami
 In a production environment, the data saving functionality would be extended to automatically commit changes to a GitHub repository. The current implementation uses localStorage as a simulation.
 
 ## Copyright
+
 
 All rights reserved by TravelIndia86.
