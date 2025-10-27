@@ -7,7 +7,6 @@ A comprehensive travel website for Uttarakhand hills with admin panel and dynami
 - **Responsive Design**: Works on all devices
 - **Dynamic Content**: Content managed through admin panel
 - **Tagline Rotation**: Automatically changes every 2 minutes
-- **Admin Panel**: Password-protected content management
 - **Data Persistence**: Saves data to localStorage (simulates GitHub storage)
 
 ## File Structure
@@ -15,7 +14,6 @@ A comprehensive travel website for Uttarakhand hills with admin panel and dynami
 - `index.html` - Home page with featured destinations and news
 - `about.html` - About Us page
 - `gallery.html` - Photo gallery with filtering
-- `admin.html` - Admin panel for content management
 - `styles.css` - All styling
 - `script.js` - All JavaScript functionality
 - `data.json` - Sample data structure
@@ -39,3 +37,4 @@ In a production environment, the data saving functionality would be extended to 
 
 
 All rights reserved by TravelIndia86.
+
