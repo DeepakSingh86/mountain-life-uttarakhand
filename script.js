@@ -25,7 +25,7 @@ const GITHUB_CONFIG = {
     repo: 'mountain-life-uttarakhand',
     branch: "main",
     dataFolder: "data",
-    token: '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'
+    token: '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'
 };
 
 // Initialize the website
@@ -36,20 +36,53 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeStatsAnimation();
 });
 
-// Load data from localStorage or initialize with default data
-function loadData() {
-    const savedData = localStorage.getItem('uttarakhandWebsiteData');
+// Sections = each corresponds to a JSON file
+const FILES = ["destinations", "gallery", "news", "testimonials", "taglines"];
+
+// Load JSON data from GitHub
+async function loadData() {
+  for (const name of FILES) {
+    const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFolder}/${name}.json?ref=${GITHUB_CONFIG.branch}`;
     
-    if (savedData) {
-        websiteData = JSON.parse(savedData);
-    } else {
-        // Initialize with default data
-        initializeDefaultData();
+    try {
+      const res = await fetch(url, {
+        headers: {
+          "Accept": "application/vnd.github.v3+json",
+          "Authorization": `token ${GITHUB_CONFIG.token}`
+        }
+      });
+
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
+      const file = await res.json();
+      const json = JSON.parse(atob(file.content.replace(/\n/g, "")));
+
+      websiteData[name] = json;
+     // console.log(`✅ Loaded ${name}.json`);
+    } 
+    catch (err) {
+      console.error(`❌ Failed to load ${name}.json:`, err.message);
+      websiteData[name] = [];
     }
-    
-    // Update the display based on current page
-    updatePageContent();
+  }
+
+  if (typeof updatePageContent === "function") updatePageContent();
 }
+
+// // Load data from localStorage or initialize with default data
+// function loadData() {
+    // const savedData = localStorage.getItem('uttarakhandWebsiteData');
+    
+    // if (savedData) {
+        // websiteData = JSON.parse(savedData);
+    // } else {
+        // // Initialize with default data
+        // initializeDefaultData();
+    // }
+    
+    // // Update the display based on current page
+    // updatePageContent();
+// }
 
 // Initialize with default data
 
@@ -166,34 +199,79 @@ function initializeStatsAnimation() {
 
 // Animate statistics counters
 function animateStats() {
-    const stats = websiteData.stats;
-    
-    // Animate each counter
-    animateValue('destinations-count', 0, stats.destinations, 2000);
-    animateValue('visitors-count', 0, stats.visitors, 2000);
-    animateValue('years-count', 0, stats.years, 2000);
-    animateValue('satisfaction-count', 0, stats.satisfaction, 2000, true);
+    const stats = websiteData.stats || {};
+
+    animateValue('destinations-count', 0, Math.max(0, stats.destinations || 0), 2000);
+    animateValue('visitors-count', 0, Math.max(0, stats.visitors || 0), 2000);
+    animateValue('years-count', 0, Math.max(0, stats.years || 0), 2000);
+    animateValue('satisfaction-count', 0, Math.max(0, stats.satisfaction || 0), 2000, true);
 }
 
-// Animate a value from start to end
+// Animate a value from start to end safely (no negatives)
 function animateValue(id, start, end, duration, isPercentage = false) {
     const element = document.getElementById(id);
     if (!element) return;
-    
+
+    // Ensure valid numeric values and prevent negative range
+    start = Math.max(0, Number(start) || 0);
+    end = Math.max(0, Number(end) || 0);
+
     const range = end - start;
-    const increment = end > start ? 1 : -1;
-    const stepTime = Math.abs(Math.floor(duration / range));
+    if (range === 0) {
+        element.innerHTML = isPercentage ? end + "%" : formatNumber(end);
+        return;
+    }
+
+    const stepTime = Math.max(10, Math.floor(duration / range));
     let current = start;
-    
-    const timer = setInterval(function() {
-        current += increment;
+
+    const timer = setInterval(() => {
+        current++;
         element.innerHTML = isPercentage ? current + "%" : formatNumber(current);
-        
-        if (current === end) {
+
+        if (current >= end) {
             clearInterval(timer);
+            element.innerHTML = isPercentage ? end + "%" : formatNumber(end);
         }
     }, stepTime);
 }
+
+// Optional number formatting for commas
+function formatNumber(num) {
+    return num.toLocaleString();
+}
+
+
+// // Animate statistics counters
+// function animateStats() {
+    // const stats = websiteData.stats;
+    
+    // // Animate each counter
+    // animateValue('destinations-count', 0, stats.destinations, 2000);
+    // animateValue('visitors-count', 0, stats.visitors, 2000);
+    // animateValue('years-count', 0, stats.years, 2000);
+    // animateValue('satisfaction-count', 0, stats.satisfaction, 2000, true);
+// }
+
+// // Animate a value from start to end
+// function animateValue(id, start, end, duration, isPercentage = false) {
+    // const element = document.getElementById(id);
+    // if (!element) return;
+    
+    // const range = end - start;
+    // const increment = end > start ? 1 : -1;
+    // const stepTime = Math.abs(Math.floor(duration / range));
+    // let current = start;
+    
+    // const timer = setInterval(function() {
+        // current += increment;
+        // element.innerHTML = isPercentage ? current + "%" : formatNumber(current);
+        
+        // if (current === end) {
+            // clearInterval(timer);
+        // }
+    // }, stepTime);
+// }
 
 // Format numbers with commas
 function formatNumber(num) {
@@ -763,7 +841,3 @@ function formatDisplayDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
-
-
-
-
