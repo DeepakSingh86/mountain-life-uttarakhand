@@ -23,7 +23,8 @@ const ADMIN_CREDENTIALS = {
 const GITHUB_CONFIG = {
     repo: "uttarakhand-travel-data",
     branch: "main",
-    dataFolder: "data"
+    dataFolder: "data",
+    token: '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'
 };
 
 // Initialize the website
@@ -51,15 +52,65 @@ function loadData() {
 
 // Initialize with default data
 
+// 💾 Function to save section data to GitHub
+async function saveData(sectionName) {
+    const sectionData = websiteData[sectionName];
+    if (!sectionData) {
+        console.error(`Section "${sectionName}" not found in websiteData`);
+        return;
+    }
 
+    const jsonContent = JSON.stringify(sectionData, null, 2);
+    const filePath = `${GITHUB_CONFIG.dataFolder}/${sectionName}.json`;
+
+    try {
+        // Step 1: Get existing file SHA (needed to update)
+        const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
+        const getResponse = await fetch(getUrl, {
+            headers: {
+                Authorization: `token ${GITHUB_CONFIG.token}`,
+                Accept: "application/vnd.github.v3+json"
+            }
+        });
+
+        const fileData = await getResponse.json();
+        const sha = fileData.sha || null;
+
+        // Step 2: Prepare commit payload
+        const putUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
+        const response = await fetch(putUrl, {
+            method: "PUT",
+            headers: {
+                Authorization: `token ${GITHUB_CONFIG.token}`,
+                Accept: "application/vnd.github.v3+json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: `Update ${sectionName}.json`,
+                content: btoa(unescape(encodeURIComponent(jsonContent))), // base64 encoding
+                branch: GITHUB_CONFIG.branch,
+                sha: sha
+            })
+        });
+
+        if (response.ok) {
+            console.log(`✅ Successfully saved ${sectionName}.json to GitHub (${filePath})`);
+        } else {
+            const error = await response.json();
+            console.error(`❌ Failed to save ${sectionName}.json`, error);
+        }
+    } catch (error) {
+        console.error("⚠️ Error saving data to GitHub:", error);
+    }
+}
 // Save data to localStorage and simulate GitHub save
-function saveData() {
-    localStorage.setItem('uttarakhandWebsiteData', JSON.stringify(websiteData));
+//function saveData() {
+  //  localStorage.setItem('uttarakhandWebsiteData', JSON.stringify(websiteData));
     
     // Simulate GitHub save
-    console.log("Data saved to localStorage. In production, this would push to GitHub repository.");
-    simulateGitHubSave();
-}
+    //console.log("Data saved to localStorage. In production, this would push to GitHub repository.");
+    //simulateGitHubSave();
+//}
 
 // Simulate GitHub data saving
 function simulateGitHubSave() {
@@ -327,7 +378,7 @@ function addDestination() {
     };
     
     websiteData.destinations.push(newDestination);
-    saveData();
+    saveData("destinations");
     loadDestinationsList();
     document.getElementById('destination-form').reset();
     
@@ -360,7 +411,7 @@ function loadDestinationsList() {
 function deleteDestination(id) {
     if (confirm('Are you sure you want to delete this destination?')) {
         websiteData.destinations = websiteData.destinations.filter(dest => dest.id !== id);
-        saveData();
+        saveData("destinations");
         loadDestinationsList();
         updatePageContent();
     }
@@ -380,7 +431,7 @@ function addGalleryItem() {
     };
     
     websiteData.gallery.push(newGalleryItem);
-    saveData();
+    saveData("gallery");
     loadGalleryList();
     document.getElementById('gallery-form').reset();
     
@@ -413,7 +464,7 @@ function loadGalleryList() {
 function deleteGalleryItem(id) {
     if (confirm('Are you sure you want to delete this gallery item?')) {
         websiteData.gallery = websiteData.gallery.filter(item => item.id !== id);
-        saveData();
+        saveData("gallery");
         loadGalleryList();
         updatePageContent();
     }
@@ -433,7 +484,7 @@ function addNewsItem() {
     };
     
     websiteData.news.push(newNewsItem);
-    saveData();
+    saveData("news");
     loadNewsList();
     document.getElementById('news-form').reset();
     
@@ -466,7 +517,7 @@ function loadNewsList() {
 function deleteNewsItem(id) {
     if (confirm('Are you sure you want to delete this news item?')) {
         websiteData.news = websiteData.news.filter(item => item.id !== id);
-        saveData();
+        saveData("news");
         loadNewsList();
         updatePageContent();
     }
@@ -488,7 +539,7 @@ function addTestimonial() {
     };
     
     websiteData.testimonials.push(newTestimonial);
-    saveData();
+    saveData("testimonials");
     loadTestimonialsList();
     document.getElementById('testimonial-form').reset();
     
@@ -521,7 +572,7 @@ function loadTestimonialsList() {
 function deleteTestimonial(id) {
     if (confirm('Are you sure you want to delete this testimonial?')) {
         websiteData.testimonials = websiteData.testimonials.filter(item => item.id !== id);
-        saveData();
+        saveData("testimonials");
         loadTestimonialsList();
         updatePageContent();
     }
@@ -532,7 +583,7 @@ function addTagline() {
     const tagline = document.getElementById('new-tagline').value;
     
     websiteData.taglines.push(tagline);
-    saveData();
+    saveData("taglines");
     loadTaglinesList();
     document.getElementById('tagline-form').reset();
     
@@ -563,7 +614,7 @@ function loadTaglinesList() {
 function deleteTagline(index) {
     if (confirm('Are you sure you want to delete this tagline?')) {
         websiteData.taglines.splice(index, 1);
-        saveData();
+        saveData("taglines");
         loadTaglinesList();
     }
 }
@@ -711,5 +762,6 @@ function formatDisplayDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
+
 
 
