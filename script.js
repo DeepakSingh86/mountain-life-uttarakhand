@@ -40,75 +40,107 @@ document.addEventListener('DOMContentLoaded', function() {
 // Sections = each corresponds to a JSON file
 const FILES = ["destinations", "gallery", "news", "testimonials", "taglines"];
 
-async function loadData() {
-	debugger;
-  for (const name of FILES) {
-    // Use raw.githubusercontent.com (no auth required)
-    const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.dataFolder}/${name}.json`;
-
-    try {
-      const res = await fetch(url);
-
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-
-      const json = await res.json();
-      websiteData[name] = json;
-      //console.log(`✅ Loaded ${name}.json`);
-    } 
-    catch (err) {
-      console.error(`❌ Failed to load ${name}.json:`, err.message);
-      websiteData[name] = [];
+async 
+function loadData() {
+    // Try to load local JSON files from the data/ folder first (works for local server and GitHub Pages).
+    const dataFiles = ['data/destinations.json','data/gallery.json','data/news.json','data/taglines.json','data/testimonials.json','data.json'];
+    function fetchJson(path) {
+        return fetch(path).then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status + ' loading ' + path);
+            return r.json().catch(()=>{return null;});
+        }).catch(err=>{ console.warn('Failed to load', path, err); return null; });
     }
-  }
-
-  if (typeof updatePageContent === "function") updatePageContent();
+    Promise.all(dataFiles.map(f => fetchJson(f))).then(results => {
+        const keys = ['destinations','gallery','news','taglines','testimonials','raw'];
+        results.forEach((res, idx) => {
+            if (!res) return;
+            try {
+                if (idx === 5) {
+                    Object.assign(websiteData, res);
+                } else {
+                    websiteData[keys[idx]] = res;
+                }
+            } catch (e){ console.warn('merge fail', e); }
+        });
+        if ((!websiteData.news || websiteData.news.length === 0) && websiteData.raw && websiteData.raw.news) {
+            websiteData.news = websiteData.raw.news;
+        }
+        try { updatePageContent(); } catch(e){}
+        try { initializeEnhancements(); } catch(e){}
+    }).catch(err=>{
+        console.error('loadData error', err);
+    });
 }
 
 
+
 // // Load JSON data from GitHub
-// async function loadData() {
-  // for (const name of FILES) {
-    // const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFolder}/${name}.json?ref=${GITHUB_CONFIG.branch}`;
-    
-    // try {
-      // const res = await fetch(url, {
-        // headers: {
-          // "Accept": "application/vnd.github.v3+json",
-          // "Authorization": `token ${GITHUB_CONFIG.token}`
-        // }
-      // });
+// async 
+function loadData() {
+    // Try to load local JSON files from the data/ folder first (works for local server and GitHub Pages).
+    const dataFiles = ['data/destinations.json','data/gallery.json','data/news.json','data/taglines.json','data/testimonials.json','data.json'];
+    function fetchJson(path) {
+        return fetch(path).then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status + ' loading ' + path);
+            return r.json().catch(()=>{return null;});
+        }).catch(err=>{ console.warn('Failed to load', path, err); return null; });
+    }
+    Promise.all(dataFiles.map(f => fetchJson(f))).then(results => {
+        const keys = ['destinations','gallery','news','taglines','testimonials','raw'];
+        results.forEach((res, idx) => {
+            if (!res) return;
+            try {
+                if (idx === 5) {
+                    Object.assign(websiteData, res);
+                } else {
+                    websiteData[keys[idx]] = res;
+                }
+            } catch (e){ console.warn('merge fail', e); }
+        });
+        if ((!websiteData.news || websiteData.news.length === 0) && websiteData.raw && websiteData.raw.news) {
+            websiteData.news = websiteData.raw.news;
+        }
+        try { updatePageContent(); } catch(e){}
+        try { initializeEnhancements(); } catch(e){}
+    }).catch(err=>{
+        console.error('loadData error', err);
+    });
+}
 
-      // if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-
-      // const file = await res.json();
-      // const json = JSON.parse(atob(file.content.replace(/\n/g, "")));
-
-      // websiteData[name] = json;
-     // // console.log(`✅ Loaded ${name}.json`);
-    // } 
-    // catch (err) {
-      // console.error(`❌ Failed to load ${name}.json:`, err.message);
-      // websiteData[name] = [];
-    // }
-  // }
-
-  // if (typeof updatePageContent === "function") updatePageContent();
-// }
 
 // // Load data from localStorage or initialize with default data
-// function loadData() {
-    // const savedData = localStorage.getItem('uttarakhandWebsiteData');
-    
-    // if (savedData) {
-        // websiteData = JSON.parse(savedData);
-    // } else {
-        // // Initialize with default data
-        // initializeDefaultData();
-    // }
-    
-    // // Update the display based on current page
-    // updatePageContent();
-// }
+// 
+function loadData() {
+    // Try to load local JSON files from the data/ folder first (works for local server and GitHub Pages).
+    const dataFiles = ['data/destinations.json','data/gallery.json','data/news.json','data/taglines.json','data/testimonials.json','data.json'];
+    function fetchJson(path) {
+        return fetch(path).then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status + ' loading ' + path);
+            return r.json().catch(()=>{return null;});
+        }).catch(err=>{ console.warn('Failed to load', path, err); return null; });
+    }
+    Promise.all(dataFiles.map(f => fetchJson(f))).then(results => {
+        const keys = ['destinations','gallery','news','taglines','testimonials','raw'];
+        results.forEach((res, idx) => {
+            if (!res) return;
+            try {
+                if (idx === 5) {
+                    Object.assign(websiteData, res);
+                } else {
+                    websiteData[keys[idx]] = res;
+                }
+            } catch (e){ console.warn('merge fail', e); }
+        });
+        if ((!websiteData.news || websiteData.news.length === 0) && websiteData.raw && websiteData.raw.news) {
+            websiteData.news = websiteData.raw.news;
+        }
+        try { updatePageContent(); } catch(e){}
+        try { initializeEnhancements(); } catch(e){}
+    }).catch(err=>{
+        console.error('loadData error', err);
+    });
+}
+
 
 // Initialize with default data
 
@@ -471,8 +503,6 @@ function initializePageSpecificFunctions() {
 // Home page functions
 function initializeHomePage() {
     // Nothing specific needed beyond what's in updatePageContent
-    // Initialize enhancements (readmore, lightbox, video) for home page
-    setTimeout(initializeEnhancements, 200); // small delay to allow content to render
 }
 
 // Gallery page functions
@@ -1052,19 +1082,14 @@ function formatDisplayDate(dateString) {
 
 
 /* ====== Enhancements: Read More, Image Lightbox, Video Modal ====== */
-
+// (same enhancement code - concise)
 function setupReadMore(selector = '.news-card .news-content p', maxChars = 220) {
     document.querySelectorAll(selector).forEach(p => {
         if (p.dataset.processed) return;
         const fullText = p.innerHTML;
-        // Strip tags for length check but keep HTML for display if short
         const plain = p.textContent || p.innerText || '';
-        if (plain.length <= maxChars) {
-            p.dataset.processed = '1';
-            return;
-        }
+        if (plain.length <= maxChars) { p.dataset.processed='1'; return; }
         const visible = plain.slice(0, maxChars).trim();
-        // create truncated HTML preserving simple tags is complex, so show plain truncated + ellipsis
         const truncatedHTML = visible + '... ';
         const readMoreBtn = document.createElement('button');
         readMoreBtn.className = 'readmore-btn';
@@ -1073,7 +1098,6 @@ function setupReadMore(selector = '.news-card .news-content p', maxChars = 220) 
             if (readMoreBtn.innerText === 'Read more') {
                 p.innerHTML = fullText + ' ';
                 readMoreBtn.innerText = 'Show less';
-                // Re-setup video links and image clicks inside expanded content
                 setupInlineVideoButtons(p);
                 setupImageClickables(p);
             } else {
@@ -1085,7 +1109,6 @@ function setupReadMore(selector = '.news-card .news-content p', maxChars = 220) 
         p.innerHTML = truncatedHTML;
         p.appendChild(readMoreBtn);
         p.dataset.processed = '1';
-        // Also setup inline video buttons and images for the truncated state
         setupInlineVideoButtons(p);
         setupImageClickables(p);
     });
@@ -1097,7 +1120,6 @@ function setupImageLightbox() {
         if (t.tagName === 'IMG' && t.closest('.gallery-item, .news-card, .item-card, .card, .gallery-grid, .dest-card, .photo')) {
             openImageModal(t.src, t.alt || '');
         }
-        // If image wrapped in anchor
         if (t.tagName === 'A' && t.querySelector && t.querySelector('img')) {
             const img = t.querySelector('img');
             openImageModal(img.src, img.alt || '');
@@ -1107,7 +1129,6 @@ function setupImageLightbox() {
 }
 
 function setupImageClickables(scope) {
-    // make images within scope clickable (used when content updated)
     (scope ? scope : document).querySelectorAll('img').forEach(img=>{
         img.style.cursor = 'zoom-in';
         img.addEventListener('click', function(ev){
@@ -1134,47 +1155,28 @@ function closeImageModal() {
     img.src = '';
 }
 
-/* Video handling: detect YouTube/Facebook links and add play button that opens modal with embedded player */
 function setupInlineVideoButtons(scope) {
     const container = scope || document;
     const urlRegex = /(https?:\/\/[^\s'"]+)/g;
     container.querySelectorAll('a').forEach(a=>{
         const href = a.getAttribute('href') || '';
         if (!href || a.dataset.vsetup) return;
-        // YouTube
         const yt = href.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_\-]+)/);
-        if (yt) {
-            addVideoPlayButton(a, 'youtube', yt[1]);
-            a.dataset.vsetup = '1';
-            return;
-        }
-        // Facebook video (simple embed using video.php?src=... may not always work; we'll open in iframe with the href)
-        if (href.includes('facebook.com') || href.includes('fb.watch')) {
-            addVideoPlayButton(a, 'facebook', href);
-            a.dataset.vsetup = '1';
-            return;
-        }
-        // direct mp4 or video links
-        if (href.match(/\.(mp4|webm|ogg)(\?|$)/)) {
-            addVideoPlayButton(a, 'direct', href);
-            a.dataset.vsetup = '1';
-            return;
-        }
+        if (yt) { addVideoPlayButton(a, 'youtube', yt[1]); a.dataset.vsetup='1'; return; }
+        if (href.includes('facebook.com') || href.includes('fb.watch')) { addVideoPlayButton(a, 'facebook', href); a.dataset.vsetup='1'; return; }
+        if (href.match(/\.(mp4|webm|ogg)(\?|$)/)) { addVideoPlayButton(a, 'direct', href); a.dataset.vsetup='1'; return; }
     });
 }
 
 function addVideoPlayButton(anchor, type, idOrUrl) {
-    // Create overlay play icon next to the link
     const btn = document.createElement('button');
     btn.className = 'video-play-btn';
     btn.title = 'Play video';
     btn.innerHTML = '<i class="fas fa-play"></i>';
     btn.addEventListener('click', function(ev){
-        ev.preventDefault();
-        ev.stopPropagation();
+        ev.preventDefault(); ev.stopPropagation();
         openVideoModal(type, idOrUrl);
     });
-    // Insert after the anchor
     anchor.parentNode.insertBefore(btn, anchor.nextSibling);
 }
 
@@ -1182,7 +1184,6 @@ function openVideoModal(type, idOrUrl) {
     const modal = document.getElementById('site-video-modal');
     if (!modal) return;
     const container = modal.querySelector('.video-container');
-    // clear
     container.innerHTML = '';
     if (type === 'youtube') {
         const iframe = document.createElement('iframe');
@@ -1199,8 +1200,7 @@ function openVideoModal(type, idOrUrl) {
     } else if (type === 'direct') {
         const vid = document.createElement('video');
         vid.src = idOrUrl;
-        vid.controls = true;
-        vid.autoplay = true;
+        vid.controls = true; vid.autoplay = true;
         container.appendChild(vid);
     }
     modal.classList.add('open');
@@ -1214,7 +1214,6 @@ function closeVideoModal() {
     modal.classList.remove('open');
 }
 
-/* Wire up global modal close listeners */
 document.addEventListener('click', function(e){
     const imgModal = document.getElementById('site-image-modal');
     if (imgModal && imgModal.classList.contains('open') && e.target.matches('#site-image-modal .close, #site-image-modal')) {
@@ -1226,18 +1225,12 @@ document.addEventListener('click', function(e){
     }
 });
 document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape') {
-        closeImageModal();
-        closeVideoModal();
-    }
+    if (e.key === 'Escape') { closeImageModal(); closeVideoModal(); }
 });
 
-/* Initialize our enhancements on the page */
 function initializeEnhancements() {
     setupReadMore();
     setupImageLightbox();
     setupImageClickables();
     setupInlineVideoButtons(document);
 }
-
-/* Try to call from page-specific init points */
