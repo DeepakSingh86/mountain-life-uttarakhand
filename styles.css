@@ -723,7 +723,6 @@ footer {
 
 
 
-
 /* Enhancements: Read more, lightbox and video modal styles */
 .readmore-btn, .video-play-btn {
     background: #ff6b6b;
@@ -795,23 +794,3 @@ footer {
 .site-modal .video-container iframe, .site-modal .video-container video { width:100%; height:60vh; border:none; display:block; }
 .site-modal .close { position:absolute; top:8px; right:8px; background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; }
 .video-play-btn { padding:6px 8px; border-radius:50%; }
-/* make readmore and video play button clearly visible */
-.readmore-btn, .video-play-btn {
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  background: #ff6b6b !important;
-  color: #fff !important;
-  border: none !important;
-  padding: 6px 10px !important;
-  border-radius: 6px !important;
-  cursor: pointer !important;
-  font-size: 0.95rem !important;
-}
-
-/* ensure the play icon font shows; fallback if not present show text */
-.video-play-btn i:before { font-family: "Font Awesome 6 Free"; }
-
-/* ensure modal is above other elements */
-.site-modal { z-index: 99999 !important; }
-
