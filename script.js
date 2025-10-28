@@ -25,7 +25,7 @@ const GITHUB_CONFIG = {
     repo: 'mountain-life-uttarakhand',
     branch: "main",
     dataFolder: "data",
-    token: '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'
+    token: 'REDACTED_GITHUB_TOKEN'
 };
 
 // Initialize the website
