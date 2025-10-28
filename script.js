@@ -41,36 +41,29 @@ document.addEventListener('DOMContentLoaded', function() {
 const FILES = ["destinations", "gallery", "news", "testimonials", "taglines"];
 
 async 
+
 function loadData() {
-    // Try to load local JSON files from the data/ folder first (works for local server and GitHub Pages).
+    // Load local JSON files from data/ folder (works on localhost or GitHub Pages)
     const dataFiles = ['data/destinations.json','data/gallery.json','data/news.json','data/taglines.json','data/testimonials.json','data.json'];
-    function fetchJson(path) {
-        return fetch(path).then(r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status + ' loading ' + path);
-            return r.json().catch(()=>{return null;});
-        }).catch(err=>{ console.warn('Failed to load', path, err); return null; });
-    }
-    Promise.all(dataFiles.map(f => fetchJson(f))).then(results => {
+    function fetchJson(p) { return fetch(p).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status+' '+p); return r.json().catch(()=>null); }).catch(e=>{ console.warn('fetch failed',p,e); return null; }); }
+    Promise.all(dataFiles.map(f=>fetchJson(f))).then(results=>{
         const keys = ['destinations','gallery','news','taglines','testimonials','raw'];
-        results.forEach((res, idx) => {
-            if (!res) return;
+        results.forEach((res,idx)=>{
+            if(!res) return;
             try {
-                if (idx === 5) {
-                    Object.assign(websiteData, res);
-                } else {
-                    websiteData[keys[idx]] = res;
-                }
-            } catch (e){ console.warn('merge fail', e); }
+                if(idx===5) Object.assign(websiteData, res);
+                else websiteData[keys[idx]] = res;
+            } catch(e){ console.warn('merge fail', e); }
         });
-        if ((!websiteData.news || websiteData.news.length === 0) && websiteData.raw && websiteData.raw.news) {
-            websiteData.news = websiteData.raw.news;
-        }
-        try { updatePageContent(); } catch(e){}
-        try { initializeEnhancements(); } catch(e){}
-    }).catch(err=>{
-        console.error('loadData error', err);
-    });
+        if((!websiteData.news || websiteData.news.length===0) && websiteData.raw && websiteData.raw.news) websiteData.news = websiteData.raw.news;
+        try{ if(typeof updatePageContent === 'function') updatePageContent(); }catch(e){}
+        try{ if(typeof updateNews === 'function') updateNews(); }catch(e){}
+        try{ if(typeof updateGalleryPage === 'function') updateGalleryPage(); }catch(e){}
+        // ensure enhancements are initialized after data is applied
+        try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
+    }).catch(err=>{ console.error('loadData error', err); });
 }
+
 
 
 
@@ -966,6 +959,8 @@ function updatePageContent() {
             updateGalleryPage();
             break;
     }
+
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
 }
 
 // Update home page content
@@ -973,6 +968,8 @@ function updateHomePage() {
     updateDestinations();
     updateNews();
     updateTestimonials();
+
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
 }
 
 // Update destinations on home page
@@ -995,6 +992,8 @@ function updateDestinations() {
         `;
         gridElement.appendChild(card);
     });
+
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
 }
 
 // Update news on home page
@@ -1016,6 +1015,8 @@ function updateNews() {
         `;
         gridElement.appendChild(card);
     });
+
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
 }
 
 // Update testimonials on home page
@@ -1044,6 +1045,8 @@ function updateTestimonials() {
         `;
         gridElement.appendChild(card);
     });
+
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
 }
 
 // Update gallery page
@@ -1065,6 +1068,8 @@ function updateGalleryPage() {
         `;
         gridElement.appendChild(galleryItem);
     });
+
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
 }
 
 // Utility function to format dates for display
@@ -1233,4 +1238,30 @@ function initializeEnhancements() {
     setupImageLightbox();
     setupImageClickables();
     setupInlineVideoButtons(document);
+}
+
+
+function createGlobalModals(){
+    if(document.getElementById('site-image-modal')) return;
+    const div = document.createElement('div');
+    div.innerHTML = `
+    <div id="site-image-modal" class="site-modal" role="dialog" aria-hidden="true">
+      <div class="modal-inner">
+        <button class="close" aria-label="Close">&times;</button>
+        <img src="" alt="">
+      </div>
+    </div>
+    <div id="site-video-modal" class="site-modal" role="dialog" aria-hidden="true">
+      <div class="modal-inner">
+        <button class="close" aria-label="Close">&times;</button>
+        <div class="video-container"></div>
+      </div>
+    </div>
+    `;
+    document.body.appendChild(div);
+    try {
+        document.getElementById('site-image-modal').querySelector('.close').addEventListener('click', function(){ closeImageModal(); });
+        document.getElementById('site-video-modal').querySelector('.close').addEventListener('click', function(){ closeVideoModal(); });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeImageModal(); closeVideoModal(); }});
+    } catch(e){}
 }
