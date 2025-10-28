@@ -221,44 +221,44 @@ function initializeStatsAnimation() {
     }
 }
 
-// Animate statistics counters
-function animateStats() {
-    const stats = websiteData.stats || {};
+// // Animate statistics counters
+// function animateStats() {
+    // const stats = websiteData.stats || {};
 
-    animateValue('destinations-count', 0, Math.max(0, stats.destinations || 0), 2000);
-    animateValue('visitors-count', 0, Math.max(0, stats.visitors || 0), 2000);
-    animateValue('years-count', 0, Math.max(0, stats.years || 0), 2000);
-    animateValue('satisfaction-count', 0, Math.max(0, stats.satisfaction || 0), 2000, true);
-}
+    // animateValue('destinations-count', 0, Math.max(102, stats.destinations || 0), 2000);
+    // animateValue('visitors-count', 0, Math.max(0, stats.visitors || 0), 2000);
+    // animateValue('years-count', 0, Math.max(0, stats.years || 0), 2000);
+    // animateValue('satisfaction-count', 0, Math.max(0, stats.satisfaction || 0), 2000, true);
+// }
 
-// Animate a value from start to end safely (no negatives)
-function animateValue(id, start, end, duration, isPercentage = false) {
-    const element = document.getElementById(id);
-    if (!element) return;
+// // Animate a value from start to end safely (no negatives)
+// function animateValue(id, start, end, duration, isPercentage = false) {
+    // const element = document.getElementById(id);
+    // if (!element) return;
 
-    // Ensure valid numeric values and prevent negative range
-    start = Math.max(0, Number(start) || 0);
-    end = Math.max(0, Number(end) || 0);
+    // // Ensure valid numeric values and prevent negative range
+    // start = Math.max(0, Number(start) || 0);
+    // end = Math.max(0, Number(end) || 0);
 
-    const range = end - start;
-    if (range === 0) {
-        element.innerHTML = isPercentage ? end + "%" : formatNumber(end);
-        return;
-    }
+    // const range = end - start;
+    // if (range === 0) {
+        // element.innerHTML = isPercentage ? end + "%" : formatNumber(end);
+        // return;
+    // }
 
-    const stepTime = Math.max(10, Math.floor(duration / range));
-    let current = start;
+    // const stepTime = Math.max(10, Math.floor(duration / range));
+    // let current = start;
 
-    const timer = setInterval(() => {
-        current++;
-        element.innerHTML = isPercentage ? current + "%" : formatNumber(current);
+    // const timer = setInterval(() => {
+        // current++;
+        // element.innerHTML = isPercentage ? current + "%" : formatNumber(current);
 
-        if (current >= end) {
-            clearInterval(timer);
-            element.innerHTML = isPercentage ? end + "%" : formatNumber(end);
-        }
-    }, stepTime);
-}
+        // if (current >= end) {
+            // clearInterval(timer);
+            // element.innerHTML = isPercentage ? end + "%" : formatNumber(end);
+        // }
+    // }, stepTime);
+// }
 
 // Optional number formatting for commas
 function formatNumber(num) {
@@ -266,36 +266,146 @@ function formatNumber(num) {
 }
 
 
-// // Animate statistics counters
-// function animateStats() {
-    // const stats = websiteData.stats;
+ // // Animate statistics counters
+ // function animateStats() {
+   // const stats = websiteData.stats;
     
-    // // Animate each counter
-    // animateValue('destinations-count', 0, stats.destinations, 2000);
+   // // Animate each counter
+   // animateValue('destinations-count', 0, stats.destinations, 2000);
     // animateValue('visitors-count', 0, stats.visitors, 2000);
-    // animateValue('years-count', 0, stats.years, 2000);
-    // animateValue('satisfaction-count', 0, stats.satisfaction, 2000, true);
-// }
+   // animateValue('years-count', 0, stats.years, 2000);
+ // //    animateValue('satisfaction-count', 0, stats.years, 2000);
+   // animateValue('satisfaction-count', 0, Math.max(100,100), 100, true);
+ // }
 
 // // Animate a value from start to end
-// function animateValue(id, start, end, duration, isPercentage = false) {
-    // const element = document.getElementById(id);
-    // if (!element) return;
+ // function animateValue(id, start, end, duration, isPercentage = false) {
+     // const element = document.getElementById(id);
+     // if (!element) return;
     
-    // const range = end - start;
-    // const increment = end > start ? 1 : -1;
-    // const stepTime = Math.abs(Math.floor(duration / range));
-    // let current = start;
+     // const range = end - start;
+     // const increment = end > start ? 1 : +1;
+     // const stepTime = Math.abs(Math.floor(duration / range));
+     // let current = start;
     
-    // const timer = setInterval(function() {
+     // const timer = setInterval(function() {
         // current += increment;
-        // element.innerHTML = isPercentage ? current + "%" : formatNumber(current);
-        
+        // element.innerHTML = isPercentage ? 100 + "%" : formatNumber(current);
+       
         // if (current === end) {
-            // clearInterval(timer);
+         // // clearInterval(timer);
         // }
     // }, stepTime);
 // }
+
+
+// --- Base data (starting point) ---
+const websiteDataCount = {
+  stats: {
+    destinations: 56,   // starting count
+    visitors: 85402,    // starting count
+    years: 6.5,
+    satisfaction: 87    // percent
+  }
+};
+
+// --- Config: daily growth values ---
+const DAILY_INCREMENTS = { destinations: 13, visitors: 452 };
+
+// --- Reference start date (set the real launch date) ---
+const START_DATE = new Date("2025-10-26"); // change this to your site start date
+
+// --- Calculate days passed since start date ---
+function getDaysSinceStart() {
+  const today = new Date();
+  const diffTime = today.setHours(0, 0, 0, 0) - START_DATE.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+}
+
+// --- Apply date-based increments automatically ---
+function applyDateBasedIncrements() {
+  const daysPassed = getDaysSinceStart();
+
+  websiteDataCount.stats.destinations =
+    56 + (DAILY_INCREMENTS.destinations * daysPassed);
+
+  websiteDataCount.stats.visitors =
+    85402 + (DAILY_INCREMENTS.visitors * daysPassed);
+}
+
+// --- Easing and formatting functions ---
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function formatValue(value, decimals = 0, suffix = '', useThousands = false) {
+  let val = value.toFixed(decimals);
+  if (useThousands) {
+    val = Number(val).toLocaleString();
+  }
+  return val + suffix;
+}
+
+// --- Animate Stats ---
+function animateStats() { 
+  const s = websiteDataCount.stats;
+
+  const counters = [
+    { id: 'destinations-count', end: s.destinations, duration: 2000, opts: { decimals: 0 } },
+    { id: 'visitors-count',    end: s.visitors,    duration: 2200, opts: { decimals: 0, useThousands: true } },
+    { id: 'years-count',       end: s.years,       duration: 1800, opts: { decimals: 1 } },
+    { id: 'satisfaction-count',end: s.satisfaction, duration: 1800, opts: { decimals: 0, suffix: '%' } }
+  ];
+
+  counters.forEach(c => animateValue(0, c.end, c.duration, c.id, c.opts));
+}
+
+function animateValue(start, end, duration, elementId, options = {}) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  const {
+    decimals = 0,
+    suffix = '',
+    useThousands = false,
+    easeFn = easeOutCubic
+  } = options;
+
+  if (start === end || duration <= 0) {
+    el.textContent = formatValue(end, decimals, suffix, useThousands);
+    return;
+  }
+
+  const startTime = performance.now();
+  const range = end - start;
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(1, elapsed / duration);
+    const easedT = easeFn(t);
+    const current = start + (range * easedT);
+    el.textContent = formatValue(current, decimals, suffix, useThousands);
+
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = formatValue(end, decimals, suffix, useThousands);
+  }
+
+  requestAnimationFrame(step);
+}
+
+// --- Run everything ---
+applyDateBasedIncrements();
+animateStats();
+
+/** Default easing (feel free to swap) */
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+/* Optional: another easing examples you could use:
+function linear(t){ return t; }
+function easeOutQuad(t){ return 1 - (1 - t)*(1 - t); }
+*/
 
 // Format numbers with commas
 function formatNumber(num) {
