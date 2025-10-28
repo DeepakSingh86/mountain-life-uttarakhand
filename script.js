@@ -471,6 +471,8 @@ function initializePageSpecificFunctions() {
 // Home page functions
 function initializeHomePage() {
     // Nothing specific needed beyond what's in updatePageContent
+    // Initialize enhancements (readmore, lightbox, video) for home page
+    setTimeout(initializeEnhancements, 200); // small delay to allow content to render
 }
 
 // Gallery page functions
@@ -1046,3 +1048,196 @@ function formatDisplayDate(dateString) {
 
 
 
+
+
+
+/* ====== Enhancements: Read More, Image Lightbox, Video Modal ====== */
+
+function setupReadMore(selector = '.news-card .news-content p', maxChars = 220) {
+    document.querySelectorAll(selector).forEach(p => {
+        if (p.dataset.processed) return;
+        const fullText = p.innerHTML;
+        // Strip tags for length check but keep HTML for display if short
+        const plain = p.textContent || p.innerText || '';
+        if (plain.length <= maxChars) {
+            p.dataset.processed = '1';
+            return;
+        }
+        const visible = plain.slice(0, maxChars).trim();
+        // create truncated HTML preserving simple tags is complex, so show plain truncated + ellipsis
+        const truncatedHTML = visible + '... ';
+        const readMoreBtn = document.createElement('button');
+        readMoreBtn.className = 'readmore-btn';
+        readMoreBtn.innerText = 'Read more';
+        readMoreBtn.addEventListener('click', function() {
+            if (readMoreBtn.innerText === 'Read more') {
+                p.innerHTML = fullText + ' ';
+                readMoreBtn.innerText = 'Show less';
+                // Re-setup video links and image clicks inside expanded content
+                setupInlineVideoButtons(p);
+                setupImageClickables(p);
+            } else {
+                p.innerHTML = truncatedHTML;
+                readMoreBtn.innerText = 'Read more';
+            }
+            p.appendChild(readMoreBtn);
+        });
+        p.innerHTML = truncatedHTML;
+        p.appendChild(readMoreBtn);
+        p.dataset.processed = '1';
+        // Also setup inline video buttons and images for the truncated state
+        setupInlineVideoButtons(p);
+        setupImageClickables(p);
+    });
+}
+
+function setupImageLightbox() {
+    document.body.addEventListener('click', function(e) {
+        const t = e.target;
+        if (t.tagName === 'IMG' && t.closest('.gallery-item, .news-card, .item-card, .card, .gallery-grid, .dest-card, .photo')) {
+            openImageModal(t.src, t.alt || '');
+        }
+        // If image wrapped in anchor
+        if (t.tagName === 'A' && t.querySelector && t.querySelector('img')) {
+            const img = t.querySelector('img');
+            openImageModal(img.src, img.alt || '');
+            e.preventDefault();
+        }
+    });
+}
+
+function setupImageClickables(scope) {
+    // make images within scope clickable (used when content updated)
+    (scope ? scope : document).querySelectorAll('img').forEach(img=>{
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', function(ev){
+            ev.stopPropagation();
+            openImageModal(img.src, img.alt || '');
+        });
+    });
+}
+
+function openImageModal(src, alt) {
+    let modal = document.getElementById('site-image-modal');
+    if (!modal) return;
+    const img = modal.querySelector('img');
+    img.src = src;
+    img.alt = alt;
+    modal.classList.add('open');
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('site-image-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    const img = modal.querySelector('img');
+    img.src = '';
+}
+
+/* Video handling: detect YouTube/Facebook links and add play button that opens modal with embedded player */
+function setupInlineVideoButtons(scope) {
+    const container = scope || document;
+    const urlRegex = /(https?:\/\/[^\s'"]+)/g;
+    container.querySelectorAll('a').forEach(a=>{
+        const href = a.getAttribute('href') || '';
+        if (!href || a.dataset.vsetup) return;
+        // YouTube
+        const yt = href.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_\-]+)/);
+        if (yt) {
+            addVideoPlayButton(a, 'youtube', yt[1]);
+            a.dataset.vsetup = '1';
+            return;
+        }
+        // Facebook video (simple embed using video.php?src=... may not always work; we'll open in iframe with the href)
+        if (href.includes('facebook.com') || href.includes('fb.watch')) {
+            addVideoPlayButton(a, 'facebook', href);
+            a.dataset.vsetup = '1';
+            return;
+        }
+        // direct mp4 or video links
+        if (href.match(/\.(mp4|webm|ogg)(\?|$)/)) {
+            addVideoPlayButton(a, 'direct', href);
+            a.dataset.vsetup = '1';
+            return;
+        }
+    });
+}
+
+function addVideoPlayButton(anchor, type, idOrUrl) {
+    // Create overlay play icon next to the link
+    const btn = document.createElement('button');
+    btn.className = 'video-play-btn';
+    btn.title = 'Play video';
+    btn.innerHTML = '<i class="fas fa-play"></i>';
+    btn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        openVideoModal(type, idOrUrl);
+    });
+    // Insert after the anchor
+    anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+}
+
+function openVideoModal(type, idOrUrl) {
+    const modal = document.getElementById('site-video-modal');
+    if (!modal) return;
+    const container = modal.querySelector('.video-container');
+    // clear
+    container.innerHTML = '';
+    if (type === 'youtube') {
+        const iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + idOrUrl + '?autoplay=1';
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
+    } else if (type === 'facebook') {
+        const iframe = document.createElement('iframe');
+        iframe.src = idOrUrl;
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
+    } else if (type === 'direct') {
+        const vid = document.createElement('video');
+        vid.src = idOrUrl;
+        vid.controls = true;
+        vid.autoplay = true;
+        container.appendChild(vid);
+    }
+    modal.classList.add('open');
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('site-video-modal');
+    if (!modal) return;
+    const container = modal.querySelector('.video-container');
+    container.innerHTML = '';
+    modal.classList.remove('open');
+}
+
+/* Wire up global modal close listeners */
+document.addEventListener('click', function(e){
+    const imgModal = document.getElementById('site-image-modal');
+    if (imgModal && imgModal.classList.contains('open') && e.target.matches('#site-image-modal .close, #site-image-modal')) {
+        closeImageModal();
+    }
+    const vidModal = document.getElementById('site-video-modal');
+    if (vidModal && vidModal.classList.contains('open') && e.target.matches('#site-video-modal .close, #site-video-modal')) {
+        closeVideoModal();
+    }
+});
+document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+        closeImageModal();
+        closeVideoModal();
+    }
+});
+
+/* Initialize our enhancements on the page */
+function initializeEnhancements() {
+    setupReadMore();
+    setupImageLightbox();
+    setupImageClickables();
+    setupInlineVideoButtons(document);
+}
+
+/* Try to call from page-specific init points */
