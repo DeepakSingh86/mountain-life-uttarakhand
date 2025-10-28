@@ -1,0 +1,178 @@
+{
+  "destinations": [
+    {
+      "id": 1,
+      "name": "Rishikesh",
+      "description": "The Yoga Capital of the World, situated on the banks of the holy Ganges river.",
+      "image": "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      "region": "Garhwal"
+    },
+    {
+      "id": 2,
+      "name": "Nainital",
+      "description": "The Lake District of India, famous for its beautiful lakes and pleasant climate.",
+      "image": "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      "region": "Kumaon"
+    },
+    {
+      "id": 3,
+      "name": "Mussoorie",
+      "description": "Queen of the Hills, offering panoramic views of the Himalayan ranges.",
+      "image": "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      "region": "Garhwal"
+    },
+    {
+      "id": 1761296641750,
+      "name": "Delhi ",
+      "description": "India capital of the new delhi",
+      "image": "https://images.pexels.com/photos/1131573/pexels-photo-1131573.jpeg",
+      "region": "Center"
+    },
+    {
+      "id": 1761297411835,
+      "name": "Uttarakhand091",
+      "description": "india",
+      "image": "https://images.pexels.com/photos/30682623/pexels-photo-30682623.jpeg",
+      "region": "Garhwal"
+    },
+    {
+      "id": 1761307763448,
+      "name": "Chamoli Uttarakhand",
+      "description": "best location of Uttarakhand at Chamoli district",
+      "image": "https://images.pexels.com/photos/30682623/pexels-photo-30682623.jpeg",
+      "region": "Garhwal"
+    },
+    {
+      "id": 1761377884318,
+      "name": "Chamoli Uttarakhand bharat",
+      "description": "India",
+      "image": "https://images.pexels.com/photos/30682623/pexels-photo-30682623.jpeg",
+      "region": "Kumaon"
+    },
+    {
+      "id": 1761377939903,
+      "name": "gauchar",
+      "description": "chamoli uttarakhand ",
+      "image": "https://images.pexels.com/photos/30132494/pexels-photo-30132494.jpeg",
+      "region": "Garhwal"
+    },
+    {
+      "id": 1761378027879,
+      "name": "Karanprayag",
+      "description": "कर्णप्रयाग उत्तराखंड के चमोली जिले में स्थित एक महत्वपूर्ण कस्बा है, जहाँ अलकनंदा और पिंडर नदियाँ मिलती हैं। इसका नाम महाभारत के योद्धा कर्ण के नाम पर पड़ा है, जिनके बारे में माना जाता है कि उन्होंने यहीं पर तपस्या की थी",
+      "image": "https://images.pexels.com/photos/12183950/pexels-photo-12183950.jpeg",
+      "region": "Garhwal"
+    },
+    {
+      "id": 1761378070271,
+      "name": "Gopeshwar",
+      "description": "नदी संगम: कर्णप्रयाग उत्तराखंड के चमोली जिले में स्थित है और यह पवित्र पंच प्रयागों में से एक है। यह वह स्थान है जहाँ अलकनंदा और पिंडर नदियाँ मिलती हैं।",
+      "image": "https://images.pexels.com/photos/1131573/pexels-photo-1131573.jpeg",
+      "region": "Kumaon"
+    }
+  ],
+  "gallery": [
+    {
+      "id": 1,
+      "title": "Kedarnath Temple",
+      "image": "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      "category": "temples"
+    },
+    {
+      "id": 2,
+      "title": "Valley of Flowers",
+      "image": "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      "category": "hills"
+    },
+    {
+      "id": 3,
+      "title": "River Rafting in Rishikesh",
+      "image": "https://images.unsplash.com/photo-1563793254321-ec66e66ccd6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      "category": "adventure"
+    },
+    {
+      "id": 1761307785657,
+      "title": "Chamoli",
+      "image": "https://images.pexels.com/photos/1131573/pexels-photo-1131573.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "category": "hills"
+    },
+    {
+      "id": 1761378187710,
+      "title": "gauchar",
+      "image": "https://images.pexels.com/photos/1583244/pexels-photo-1583244.jpeg",
+      "category": "temples"
+    },
+    {
+      "id": 1761378215408,
+      "title": "karanprayag",
+      "image": "https://images.pexels.com/photos/672630/pexels-photo-672630.jpeg",
+      "category": "temples"
+    },
+    {
+      "id": 1761378244439,
+      "title": "rudraprayad",
+      "image": "https://images.pexels.com/photos/2040807/pexels-photo-2040807.jpeg",
+      "category": "temples"
+    },
+    {
+      "id": 1761378284078,
+      "title": "srinagar",
+      "image": "https://images.pexels.com/photos/1583352/pexels-photo-1583352.jpeg",
+      "category": "temples"
+    },
+    {
+      "id": 1761378303598,
+      "title": "gauchar",
+      "image": "https://images.pexels.com/photos/1583244/pexels-photo-1583244.jpeg",
+      "category": "hills"
+    },
+    {
+      "id": 1761378315351,
+      "title": "Chamoli",
+      "image": "https://images.pexels.com/photos/1131573/pexels-photo-1131573.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "category": "adventure"
+    },
+    {
+      "id": 1761378348438,
+      "title": "karanpur",
+      "image": "https://images.pexels.com/photos/3204950/pexels-photo-3204950.jpeg",
+      "category": "wildlife"
+    }
+  ],
+  "news": [
+    {
+      "id": 1,
+      "title": "Char Dham Yatra 2024 Begins",
+      "content": "The sacred Char Dham Yatra has commenced with new safety measures in place for pilgrims.",
+      "date": "2024-05-01"
+    },
+    {
+      "id": 2,
+      "title": "New Trekking Routes Opened in Uttarakhand",
+      "content": "The state tourism department has opened 5 new trekking routes for adventure enthusiasts.",
+      "date": "2024-04-25"
+    },
+    {
+      "id": 1761307825746,
+      "title": "Chamoli uttrakhand",
+      "content": "new data checker for testing of portal",
+      "date": "2025-10-24"
+    }
+  ],
+  "taglines": [
+    "Discover the Land of Gods - Uttarakhand",
+    "Experience Serenity in the Himalayan Abode",
+    "Your Gateway to Spiritual and Adventure Tourism",
+    "Explore the Unexplored Beauty of Devbhoomi",
+    "कर्णप्रयाग: जहाँ आस्था और प्रकृति का संगम होता है",
+    "अलकनंदा और पिंडर का पवित्र संगम, कर्णप्रयाग",
+    "दिव्यता की अनुभूति, प्रकृति की अनूठी प्रस्तुति",
+    "महाभारत से हिमालय तक, एक अलौकिक यात्रा",
+    "ट्रेकिंग के शौकीनों के लिए एक नया पड़ाव, कर्णप्रयाग",
+    "पौराणिक कथाओं और नैसर्गिक सौंदर्य का केंद्र, कर्णप्रयाग"
+  ]
+}
+
+
+
+
