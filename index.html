@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="" crossorigin="anonymous">
 
+<link rel="stylesheet" href="public/media-viewer.css">
 </head>
 <body>
     <!-- Header -->
@@ -118,6 +119,13 @@
   </div>
 </div>
 
+<!-- Media viewer modal (injected) -->
+<div id="media-modal" class="media-modal" aria-hidden="true">
+  <button id="modal-close" class="modal-close" aria-label="close">✕</button>
+  <div id="modal-content" class="modal-content"></div>
+</div>
+<script src="public/media-viewer.js" defer></script>
+<script src="public/anti-inspect.js" defer></script>
 </body>
 </html>
 
