@@ -42,27 +42,36 @@ const FILES = ["destinations", "gallery", "news", "testimonials", "taglines"];
 
 async 
 
+
 function loadData() {
-    // Load local JSON files from data/ folder (works on localhost or GitHub Pages)
-    const dataFiles = ['data/destinations.json','data/gallery.json','data/news.json','data/taglines.json','data/testimonials.json','data.json'];
-    function fetchJson(p) { return fetch(p).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status+' '+p); return r.json().catch(()=>null); }).catch(e=>{ console.warn('fetch failed',p,e); return null; }); }
-    Promise.all(dataFiles.map(f=>fetchJson(f))).then(results=>{
-        const keys = ['destinations','gallery','news','taglines','testimonials','raw'];
-        results.forEach((res,idx)=>{
-            if(!res) return;
-            try {
-                if(idx===5) Object.assign(websiteData, res);
-                else websiteData[keys[idx]] = res;
-            } catch(e){ console.warn('merge fail', e); }
-        });
-        if((!websiteData.news || websiteData.news.length===0) && websiteData.raw && websiteData.raw.news) websiteData.news = websiteData.raw.news;
-        try{ if(typeof updatePageContent === 'function') updatePageContent(); }catch(e){}
-        try{ if(typeof updateNews === 'function') updateNews(); }catch(e){}
-        try{ if(typeof updateGalleryPage === 'function') updateGalleryPage(); }catch(e){}
-        // ensure enhancements are initialized after data is applied
-        try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
-    }).catch(err=>{ console.error('loadData error', err); });
+  // GitHub Pages friendly relative loader
+  const base = (function(){
+    // derive base path where index.html is located
+    const p = window.location.pathname;
+    // If served from repo root, base is the path up to repo folder; keep relative references simple
+    return p.substring(0, p.lastIndexOf('/')+1);
+  })();
+  const files = ['data/destinations.json','data/gallery.json','data/news.json','data/taglines.json','data/testimonials.json','data.json'];
+  function fetchJson(path) {
+    // try relative to base and absolute relative
+    return fetch(path).then(r => r.ok ? r.json() : null).catch(()=>null);
+  }
+  Promise.all(files.map(f => fetchJson(base + f).catch(()=>fetchJson(f)))).then(results => {
+    const keys = ['destinations','gallery','news','taglines','testimonials','raw'];
+    results.forEach((res, idx) => {
+      if (!res) return;
+      if (idx === 5) Object.assign(websiteData, res);
+      else websiteData[keys[idx]] = res;
+    });
+    if ((!websiteData.news || websiteData.news.length === 0) && websiteData.raw && websiteData.raw.news) websiteData.news = websiteData.raw.news;
+    try{ if(typeof updatePageContent==='function') updatePageContent(); }catch(e){}
+    try{ if(typeof updateNews==='function') updateNews(); }catch(e){}
+    try{ if(typeof updateGalleryPage==='function') updateGalleryPage(); }catch(e){}
+    // initialize enhancements
+    try{ setupReadMore(); setupImageClickables(); setupInlineVideoButtons(document); }catch(e){}
+  }).catch(e=>{ console.warn('loadData error', e); });
 }
+
 
 
 
@@ -1265,3 +1274,56 @@ function createGlobalModals(){
         document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeImageModal(); closeVideoModal(); }});
     } catch(e){}
 }
+// ======= Compatibility patch: ensure ReadMore, image click, video buttons for all card types =======
+(function(){
+  // extra selectors to cover destination cards, general content paragraphs
+  const extraSelectors = [
+    '.news-card .news-content p',
+    '.item-card p',
+    '.dest-card p',
+    '.destinations .card p',
+    '.card .content p',
+    '.card p',
+    '.description p',
+    '.dest-desc',        // in case your markup used this
+    '.post p'
+  ];
+
+  function runEnhancementsAll(){
+    try {
+      // call setupReadMore with each selector so it attaches to all relevant paragraphs
+      extraSelectors.forEach(sel => {
+        try { setupReadMore(sel, 220); } catch(e) { /* ignore */ }
+      });
+      // also run default (document-wide)
+      try { setupReadMore(); } catch(e){}
+      try { setupImageClickables(); } catch(e){}
+      try { setupImageClickables(document); } catch(e){}
+      try { setupInlineVideoButtons(document); } catch(e){}
+      // ensure modals exist
+      try { createGlobalModals(); } catch(e){}
+    } catch(err) {
+      console.warn("runEnhancementsAll failed", err);
+    }
+  }
+
+  // Run after page load and also periodically for a short time
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(runEnhancementsAll, 300); });
+  // Also run after 1s and 2s in case content loads later
+  setTimeout(runEnhancementsAll, 1000);
+  setTimeout(runEnhancementsAll, 2000);
+
+  // If your project has functions like updatePageContent/updateNews, hook them (non-destructive)
+  ['updatePageContent','updateNews','updateGalleryPage','updateGallery','updateDestinations','updateHome'].forEach(fnName=>{
+    try {
+      const orig = window[fnName];
+      if (typeof orig === 'function') {
+        window[fnName] = function(...args){
+          const res = orig.apply(this, args);
+          setTimeout(runEnhancementsAll, 120); // run after original function completes
+          return res;
+        };
+      }
+    } catch(e){}
+  });
+})();
