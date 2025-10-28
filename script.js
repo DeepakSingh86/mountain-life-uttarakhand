@@ -34,12 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTaglineRotation();
     initializePageSpecificFunctions();
     initializeStatsAnimation();
+	initApp();
 });
 
 // Sections = each corresponds to a JSON file
 const FILES = ["destinations", "gallery", "news", "testimonials", "taglines"];
 
 async function loadData() {
+	debugger;
   for (const name of FILES) {
     // Use raw.githubusercontent.com (no auth required)
     const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.dataFolder}/${name}.json`;
@@ -196,22 +198,61 @@ function simulateGitHubSave() {
     // });
 }
 
-// Update tagline every 2 minutes
-function initializeTaglineRotation() {
-    updateTagline(); // Initial update
-    
-    // Update every 2 minutes (120000 milliseconds)
-    setInterval(updateTagline, 120000);
+// --- Update tagline safely ---
+function updateTagline() {
+  const taglineElement = document.getElementById("tagline");
+  if (!taglineElement) return;
+
+  const taglines = websiteData.taglines;
+
+  // if data not ready yet, skip
+  if (!Array.isArray(taglines) || taglines.length === 0) return;
+
+  const randomIndex = Math.floor(Math.random() * taglines.length);
+  taglineElement.textContent = String(taglines[randomIndex] || "");
 }
 
-// Update the tagline display
-function updateTagline() {
-    const taglineElement = document.getElementById('tagline');
-    if (taglineElement && websiteData.taglines.length > 0) {
-        const randomIndex = Math.floor(Math.random() * websiteData.taglines.length);
-        taglineElement.textContent = websiteData.taglines[randomIndex];
+// --- Start rotation once data is available ---
+function initializeTaglineRotation() {
+  // try immediately
+  updateTagline();
+
+  // keep checking every 500ms until taglines are loaded
+  const waitForData = setInterval(() => {
+    if (Array.isArray(websiteData.taglines) && websiteData.taglines.length > 0) {
+      updateTagline();           // show instantly when data arrives
+      clearInterval(waitForData);
+      setInterval(updateTagline, 120000); // update every 2 min
     }
+  }, 500);
 }
+
+// --- Load data then trigger ---
+async function initApp() {
+  //await loadData();         // your GitHub JSON fetch
+  initializeTaglineRotation();
+}
+
+
+
+// // Update tagline every 2 minutes
+// function initializeTaglineRotation() {
+    // updateTagline(); // Initial update
+    
+    // // Update every 2 minutes (120000 milliseconds)
+    // setInterval(updateTagline, 120000);
+// }
+
+// // Update the tagline display
+// function updateTagline() {
+ // console.log(websiteData.taglines);
+    // const taglineElement = document.getElementById('tagline');
+    // if (websiteData.taglines.length > 0) {
+			// alert();
+        // const randomIndex = Math.floor(Math.random() * websiteData.taglines.length);
+        // taglineElement.textContent = websiteData.taglines[randomIndex];
+    // }
+// }
 
 // Initialize stats animation
 function initializeStatsAnimation() {
