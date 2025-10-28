@@ -720,3 +720,65 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+
+
+/* Enhancements: Read more, lightbox and video modal styles */
+.readmore-btn, .video-play-btn {
+    background: #ff6b6b;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    margin-left: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+.readmore-btn:hover, .video-play-btn:hover { opacity: 0.9; }
+
+#site-image-modal, #site-video-modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0,0,0,0.75);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease-in-out;
+}
+#site-image-modal.open, #site-video-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+#site-image-modal .modal-inner, #site-video-modal .modal-inner {
+    max-width: 90%;
+    max-height: 90%;
+    background: #111;
+    padding: 12px;
+    border-radius: 8px;
+    position: relative;
+}
+#site-image-modal img {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+    margin: 0 auto;
+}
+#site-video-modal .video-container iframe, #site-video-modal .video-container video {
+    width: 100%;
+    height: 60vh;
+    border: none;
+    display: block;
+}
+#site-image-modal .close, #site-video-modal .close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+.video-play-btn { margin-left: 6px; padding:6px 8px; border-radius:50%; }
