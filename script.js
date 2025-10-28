@@ -1265,3 +1265,56 @@ function createGlobalModals(){
         document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeImageModal(); closeVideoModal(); }});
     } catch(e){}
 }
+// ======= Compatibility patch: ensure ReadMore, image click, video buttons for all card types =======
+(function(){
+  // extra selectors to cover destination cards, general content paragraphs
+  const extraSelectors = [
+    '.news-card .news-content p',
+    '.item-card p',
+    '.dest-card p',
+    '.destinations .card p',
+    '.card .content p',
+    '.card p',
+    '.description p',
+    '.dest-desc',        // in case your markup used this
+    '.post p'
+  ];
+
+  function runEnhancementsAll(){
+    try {
+      // call setupReadMore with each selector so it attaches to all relevant paragraphs
+      extraSelectors.forEach(sel => {
+        try { setupReadMore(sel, 220); } catch(e) { /* ignore */ }
+      });
+      // also run default (document-wide)
+      try { setupReadMore(); } catch(e){}
+      try { setupImageClickables(); } catch(e){}
+      try { setupImageClickables(document); } catch(e){}
+      try { setupInlineVideoButtons(document); } catch(e){}
+      // ensure modals exist
+      try { createGlobalModals(); } catch(e){}
+    } catch(err) {
+      console.warn("runEnhancementsAll failed", err);
+    }
+  }
+
+  // Run after page load and also periodically for a short time
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(runEnhancementsAll, 300); });
+  // Also run after 1s and 2s in case content loads later
+  setTimeout(runEnhancementsAll, 1000);
+  setTimeout(runEnhancementsAll, 2000);
+
+  // If your project has functions like updatePageContent/updateNews, hook them (non-destructive)
+  ['updatePageContent','updateNews','updateGalleryPage','updateGallery','updateDestinations','updateHome'].forEach(fnName=>{
+    try {
+      const orig = window[fnName];
+      if (typeof orig === 'function') {
+        window[fnName] = function(...args){
+          const res = orig.apply(this, args);
+          setTimeout(runEnhancementsAll, 120); // run after original function completes
+          return res;
+        };
+      }
+    } catch(e){}
+  });
+})();
