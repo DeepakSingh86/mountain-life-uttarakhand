@@ -1,14 +1,14 @@
 [ 
       {
       "id": 1,
-      "name": "Rishikesh",
+      "name": "Rishikesh007007007",
       "description": "The Yoga Capital of the World, situated on the banks of the holy Ganges river.",
       "image": "https://images.unsplash.com/photo-1580136579312-94651dfd596d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
       "region": "Garhwal"
     },
     {
       "id": 2,
-      "name": "Nainital",
+      "name": "Nainital008008008",
       "description": "The Lake District of India, famous for its beautiful lakes and pleasant climate.",
       "image": "https://images.unsplash.com/photo-1597149877677-2c64d93c4c51?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
       "region": "Kumaon"
